@@ -1,0 +1,38 @@
+// A valid test case with cursor movements of 2 different patterns
+
+VAR distance;
+VAR reduction;
+VAR stepcount;
+VAR totalprogress;
+
+distance 100;
+reduction 60;
+stepcount 10;
+totalprogress = 0;
+
+// A loop that causes the cursor to simulate going down at a step-wise manner
+// with progressively smaller step at each iteration.
+
+FOR i = 1 STEP 1 TO 10 DO
+BEGIN
+	GO distance;
+	TURN 90;
+	GO distance;
+	TURN -90;
+	totalprogress = totalprogress + sqrt 2 * distance
+	distance = distance * sin reduction;	 
+END
+
+// jump forward an equal distance
+
+JUMP totalprogress
+
+// Make a star like movement before stopping down
+
+FOR i = -90 STEP 45 TO 270 DO
+BEGIN
+	TURN i;
+	GO distance;
+	TURN -i;
+	GO distance;	
+END

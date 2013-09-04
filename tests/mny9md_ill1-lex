@@ -1,0 +1,24 @@
+// An illegal test case as C like multi-line comments are not recognized
+
+VAR distance;
+VAR reduction;
+VAR stepcount;
+VAR totalprogress;
+
+distance 100;
+reduction 60;
+stepcount 10;
+totalprogress = 0;
+
+/* A loop that causes the cursor to simulate going down at a step-wise manner
+with progressively smaller step at each iteration. */
+
+FOR i = 1 STEP 1 TO 10 DO
+BEGIN
+        GO distance;
+        TURN 90;
+        GO distance;
+        TURN -90;
+        totalprogress = totalprogress + sqrt 2 * distance
+        distance = distance * sin reduction;
+END

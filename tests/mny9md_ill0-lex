@@ -1,0 +1,6 @@
+// An invalid test cases as variable names are required to be all lower case
+
+VAR distance;
+VAR reduction;
+VAR stepCount;
+VAR totalProgress;
