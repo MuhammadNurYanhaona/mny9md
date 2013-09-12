@@ -38,6 +38,8 @@ sqrt            return SQRT;
 		    yylval.n = insert(yytext);
                   return ID;
 		}
+
+"{"[^\n]*"}" 	fprintf(stdout, "a valid pascal comment\n");
     
 [0-9]+\.[0-9]+  yylval.d = atof(yytext);  return FLOAT;
 [0-9]+          yylval.i = atoi(yytext);  return NUMBER;

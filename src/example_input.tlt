@@ -1,0 +1,33 @@
+PROCEDURE main () RETURNS VOID {
+	
+	IF (a == b) || (c != d) THEN DO
+	BEGIN
+		WHILE (a > c) DO
+		BEGIN
+			a = a - 1;
+		END
+	END
+	ELSE DO
+	BEGIN
+		WHILE (b < d) DO
+		BEGIN
+			d = d / 2;
+		END
+	END
+
+	VAR years;
+	years = CALL calculatetime(10, 6, 13);
+}
+
+
+PROCEDURE calculatetime (years:INTEGER, months:INTEGER, days:INTEGER) RETURNS DECIMAL {
+	
+	VAR totalyears = 0.0;
+	
+	totalyears = totalyears + years;
+	totalyears = totalyears + (months / 12);
+	totalyears = totalyears + (days / 365);
+	
+	RETURN toralyears;
+} 
+
