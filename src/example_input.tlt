@@ -1,33 +1,25 @@
-PROCEDURE main () RETURNS VOID {
-	
-	IF (a == b) || (c != d) THEN DO
-	BEGIN
-		WHILE (a > c) DO
-		BEGIN
-			a = a - 1;
-		END
-	END
-	ELSE DO
-	BEGIN
-		WHILE (b < d) DO
-		BEGIN
-			d = d / 2;
-		END
-	END
+// the recursive dragon curve
 
-	VAR years;
-	years = CALL calculatetime(10, 6, 13);
+PROCEDURE a(level,dist) 
+{	IF (level > 0) THEN
+		{ TURN -45; a(level-1,dist); 
+		TURN 90; b(level-1,dist); 
+		TURN -45;
+	} ELSE
+	GO dist; 
 }
 
+PROCEDURE b(level,dist) 
+{ IF (level > 0) THEN
+	{ TURN 45; a(level-1,dist);
+	TURN -90; b(level-1,dist);
+	TURN 45; 
+	}
+  ELSE
+	GO dist;
+}
 
-PROCEDURE calculatetime (years:INTEGER, months:INTEGER, days:INTEGER) RETURNS DECIMAL {
-	
-	VAR totalyears = 0.0;
-	
-	totalyears = totalyears + years;
-	totalyears = totalyears + (months / 12);
-	totalyears = totalyears + (days / 365);
-	
-	RETURN toralyears;
-} 
+UP; NORTH; GO 400; EAST; GO 150; DOWN;
+
+a(12, 5); 
 

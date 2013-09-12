@@ -6,8 +6,7 @@
 
 
 DIGIT 	[0-9]
-ID 	[a-z]+
-ARGUMENT_SEPERATOR	[,:]	 
+ID 	[a-z]+	 
 
 %%
 
@@ -26,22 +25,21 @@ DO              return DO;
 BEGIN           return COPEN;
 END             return CCLOSE;
 
+UP		return UP;
+DOWN		return DOWN;
+NORTH		return NORTH;
+SOUTH		return SOUTH;
+EAST		return EAST;
+WEST		return WEST;
+
 IF		return IF;
 THEN		return THEN;
 ELSE		return ELSE;
 WHILE		return WHILE;
-
 PROCEDURE	return PROCEDURE;
-RETURNS		return RETURNS;
-CALL		return PROCEDURE_CALL;
-RETURN		return PROCEDURE_RETURN;
-
-INTEGER		return TYPE_INTEGER;
-DECIMAL		return TYPE_DECIMAL;
-VOID		return TYPE_VOID;
-\{		return PROC_BEGIN;
-\}		return PROC_END;	
-{ARGUMENT_SEPERATOR}	;
+\{		return COPEN;
+\}		return CCLOSE;	
+,		return COMMA;
 
 sin             return SIN;
 cos             return COS;

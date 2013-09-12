@@ -31,22 +31,19 @@
 #define ELSE 285
 #define WHILE 286
 #define PROCEDURE 287
-#define RETURNS	288
-#define PROCEDURE_CALL 289
-#define PROCEDURE_RETURN 290
 #define EQUAL 291
 #define NOT_EQUAL 292
 #define GREATER_THAN 293
 #define LESS_THAN 294
 #define AND 295
 #define OR 296
-#define TYPE_VOID 297
-#define TYPE_INTEGER 298
-#define TYPE_DECIMAL 299
-#define PROC_BEGIN 300
-#define PROC_END 301
-
-
+#define COMMA 297
+#define UP 298 
+#define DOWN 299
+#define NORTH 300
+#define SOUTH 301
+#define EAST 302
+#define WEST 303
 
 typedef union YYSTYPE
 { int i; node *n; double d;}
