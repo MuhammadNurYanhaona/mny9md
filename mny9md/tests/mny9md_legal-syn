@@ -1,0 +1,39 @@
+// program drawing a series of triangles followed by a series of circles
+
+VAR increment;
+VAR anglestart; VAR angleend;
+VAR steps;
+VAR forwardangle;
+VAR returnangle;
+
+VAR angles;
+VAR radius;
+
+increment = 1;
+anglestart = 45;
+angleend = 60; 
+steps = 500;
+
+JUMP 100; TURN 90; JUMP 100; TURN -90;
+
+forwardangle = 45;
+	
+
+FOR forwardangle = anglestart STEP increment TO angleend DO 
+BEGIN	
+	TURN forwardangle; GO steps; TURN 90; GO steps;
+	distance = sqrt 2 * steps;
+	returnangle = 180 - forwardangle;
+	TURN returnangle; GO distance; TURN 90;
+	steps = sin 45 * steps;	
+END 
+
+
+FOR radius = 2 STEP 1 TO 10 DO
+BEGIN
+	FOR angles = 1 STEP 1 TO 35 DO
+		BEGIN
+			TURN 10; GO radius;
+		END
+	GO radius;
+END 	

@@ -1,0 +1,13 @@
+// An invalid test case as each assignment statement should have a 
+// terminating semicolon, but the last one is missing its semicolon.
+
+VAR chicken;
+VAR weightofchicken;
+VAR vegetables;
+VAR weightofvegetables;
+VAR totalweight;
+
+chicken = 2; weightofchicken = 10; vegetables = 3; weightofvegetables = 1.6
+
+totalweight = chicken * weightofchicken + vegetables * weightofvegetables;
+

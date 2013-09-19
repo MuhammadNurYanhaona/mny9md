@@ -1,0 +1,8 @@
+// An illegal test case as a FOR loop's boundary is delineated in the grammer by BEGIN and END,
+// not by a parenthesis.
+
+VAR i;
+
+FOR i = 0 STEP 1 TO 10 DO (
+	GO i; TURN 90; GO i;
+)

@@ -1,0 +1,15 @@
+VAR a;
+VAR b;
+VAR c;
+VAR d;
+
+VAR x;
+VAR y;
+
+a = 10; b = 11.54; c = 30; d = 8;
+
+// x is valid as it is a proper arithmatic expression
+x = (a + b) / ((c * d ) * sin (a - b));
+
+// y is invalid as it is not correctly parenthesized
+y = (a + b / ((c * d ) * sin (a - b)); 
