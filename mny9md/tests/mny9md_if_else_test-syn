@@ -1,0 +1,30 @@
+VAR steps;
+VAR length;
+VAR iteration;
+VAR isodd;
+VAR vertical;
+
+// Draws a staircase that goes up then comes down
+
+steps = 50;
+length = 10;
+iteration = 0;
+vertical = 0;
+isodd = 0;	
+
+FOR iteration = 0 STEP length TO steps * length DO
+BEGIN
+	IF (isodd == 0) THEN {
+		GO length;
+		TURN 90;
+		isodd = isodd + 1;
+	} ELSE 	{
+		GO length;
+		vertical = vertical + length;
+		TURN -90;
+		isodd = isodd - 1;
+	}
+END
+
+TURN -180;
+GO vertical;

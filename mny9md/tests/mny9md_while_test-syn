@@ -1,0 +1,66 @@
+VAR rectanglecount;
+VAR squarecount;
+VAR rotations;
+VAR i;
+VAR j;
+VAR r;
+
+// Draws a sequence of fructals
+
+PROCEDURE drawrectangle {
+
+	VAR length;
+	VAR height;
+
+	length = PARAM;
+	height = PARAM;
+
+	GO length;
+	TURN 90;
+	GO height;
+	TURN 90;
+	GO length;
+	TURN 90;
+	GO height;
+	TURN 90;	
+}
+
+PROCEDURE drawsquare {
+	
+	VAR armlength;
+	VAR iteration;
+
+	armlength = PARAM;
+	iteration = 0;
+
+	WHILE (iteration < 4) {
+		GO armlength;
+		TURN 90;
+		iteration = iteration + 1;
+	}		
+}
+
+rectanglecount = 10;
+squarecount = 5;
+rotations = 10;
+
+JUMP 100; TURN 90; JUMP 200; TURN -90;
+
+WHILE (rotations >= r) {
+	
+	TURN r * 360 / rotations;
+	i = 0;
+	WHILE (i < rectanglecount) {
+		CALL drawrectangle (10 + 2 * i)  (20 - i);
+		j = 0;
+		WHILE (j < squarecount) {
+			CALL drawsquare 5;
+			TURN 45;
+			j = j + 1;
+		}
+		i = i + 1;
+		GO 20;
+	}
+	r = r + 1;
+	JUMP 100;
+}

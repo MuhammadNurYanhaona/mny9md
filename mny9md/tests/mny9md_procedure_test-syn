@@ -1,0 +1,33 @@
+VAR maxdistance;
+VAR distance;
+VAR armlength;
+VAR i;
+VAR j;
+VAR k;
+
+// Draws a series of squares with increasing sizes
+
+distance = 10;
+maxdistance = 1000;
+j = 50;
+
+PROCEDURE drawsquare {
+	
+	armlength = PARAM;
+	
+	FOR i = 1 STEP 1 TO 4 DO
+	BEGIN
+		GO armlength;
+		TURN 90;
+	END
+}
+
+JUMP 100; TURN 90; JUMP 100; TURN -90;
+
+WHILE (k <= j && distance < maxdistance - 10) {
+
+	CALL drawsquare sqrt distance;
+	k = k + 1;
+	GO 5;
+	distance = distance + sqrt distance * 4 + 5;
+}

@@ -1,7 +1,7 @@
 
 %{
 #include "symtab.h"
-#include "token.h"
+#include "turtle.tab.h"
 %}
 
 
@@ -13,9 +13,9 @@ ID 	[a-z]+
 \/\/.*          ;
 [[:space:]]     ;
 
-GO              return MARCH;
-TURN            return ROTATE; 
-VAR             return VARIABLE;
+GO              return GO;
+TURN            return TURN; 
+VAR             return VAR;
 
 JUMP            return JUMP;
 FOR             return FOR;
@@ -33,13 +33,14 @@ EAST		return EAST;
 WEST		return WEST;
 
 IF		return IF;
-THEN		return THEN;
+THEN		;
 ELSE		return ELSE;
 WHILE		return WHILE;
 PROCEDURE	return PROCEDURE;
+CALL		return CALL;
+PARAM		return PARAM;
 \{		return COPEN;
-\}		return CCLOSE;	
-,		return COMMA;
+\}		return CCLOSE;
 
 sin             return SIN;
 cos             return COS;
@@ -47,17 +48,21 @@ sqrt            return SQRT;
 
 ;               return SEMICOLON;
 
-==		return EQUAL;
-!=		return NOT_EQUAL;
-\|\|		return OR;
-&&		return AND;
->		return GREATER_THAN;
-\<		return LESS_THAN;
+==		return EQ;
+!=		return NE;
+>		return GT;
+>=		return GE;
+\<		return LT;
+\<=		return LE;
 
-\+              return ADD;
--               return SUBTRACT;
-\*              return MULTIPLY;
-\/              return DIVIDE;
+&&		return AND;
+\|\|		return OR;
+!		return NOT;
+
+\+              return PLUS;
+-               return MINUS;
+\*              return TIMES;
+\/              return DIV;
 
 \(              return OPEN;
 \)              return CLOSE;
@@ -69,8 +74,8 @@ sqrt            return SQRT;
                   return ID;
 		}
     
-{DIGIT}+\.{DIGIT}+  yylval.d = atof(yytext);  return DECIMAL;
-{DIGIT}+            yylval.i = atoi(yytext);  return INTEGER;
+{DIGIT}+\.{DIGIT}+  yylval.d = atof(yytext);  return FLOAT;
+{DIGIT}+            yylval.i = atoi(yytext);  return NUMBER;
 
 .               fprintf(stderr,"Unexpected character %c (%2X)\n",yytext[0],yytext[0]);
 
