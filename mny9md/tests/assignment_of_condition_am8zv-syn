@@ -1,0 +1,18 @@
+// does not support the assignment of a conditional expression to a variable because of the way
+// the grammar is written
+
+VAR east;
+VAR west;
+VAR equality;
+
+east = 100;
+west = 100;
+
+equality = east == west;
+
+IF (equality) {
+	GO 100;
+	TURN 90;
+	GO 100;
+}
+

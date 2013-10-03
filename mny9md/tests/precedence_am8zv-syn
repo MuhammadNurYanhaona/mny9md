@@ -1,0 +1,7 @@
+// In this example, the NOT operator works over '10 + 100' instead of over '10' only. This is a precedence error.
+
+IF (NOT 10 + 100 == 110) {
+	GO 100;
+	TURN 90;
+	GO 100;
+}

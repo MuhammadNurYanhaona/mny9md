@@ -1,0 +1,16 @@
+// keywords BEGIN and END are not recognized by the scanner
+
+VAR i;
+
+FOR i = 1 STEP 1 TO 4 DO
+BEGIN
+	GO 100;
+	TURN 90;			 
+END
+
+// instead only curly braces are supported as code block boundaries
+FOR i = 1 STEP 1 TO 4 DO
+{
+	GO 100;
+	TURN 90;			 
+}

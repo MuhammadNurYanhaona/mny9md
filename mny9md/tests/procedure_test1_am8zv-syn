@@ -1,0 +1,12 @@
+// variable declaration within procedure is not supported
+
+PROCEDURE hoursinayear {
+
+	VAR daysinayear;
+	VAR hoursinaday;
+
+	daysinayear = 365;
+	hoursinaday = 24;
+
+	GO daysinayear * hoursinaday;
+}

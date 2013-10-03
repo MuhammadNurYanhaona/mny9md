@@ -1,0 +1,21 @@
+// Conventional operators are not used for AND, OR, and NOT. So this program generates syntex error. 
+
+VAR a;
+VAR b;
+
+a = 101;
+b = 1;
+
+IF ((a < b) || (a > b)) {
+	GO 100;
+}
+
+IF ((a != 0) && (b != 0)) {
+	TURN 90;
+	GO 50;
+}
+
+IF (!( b + 100 > a)) {
+	TURN 90;	
+	GO 100;
+}

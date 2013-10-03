@@ -1,0 +1,13 @@
+// only atomics can be passed as parameters, but factors could be supported quite easily
+
+VAR armlength;
+
+armlength = 100;
+
+PROCEDURE drawline {
+	GO PARAM;
+}
+
+CALL drawline armlength;
+TURN 90;
+CALL drawline -armlength;

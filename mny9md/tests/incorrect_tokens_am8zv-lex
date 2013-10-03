@@ -1,0 +1,9 @@
+// sin, cos, and sqrt functions are rather recognized in uppercase, not in lowarcase, form 
+
+GO SIN 100;
+GO COS 100;
+TURN SQRT 100;
+
+GO sin 100;
+TURN sqrt 100;
+GO cos 100;

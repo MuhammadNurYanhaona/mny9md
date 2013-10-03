@@ -1,0 +1,13 @@
+// This code will not produce a valid PS as '!=' is mistakenly translated to 'neq' instead of 'ne'
+
+VAR x;
+VAR y;
+
+x = 10;
+y = 5;
+
+IF (x != y) {
+	GO 100;
+	TURN 90;
+	GO 100;
+}
