@@ -23,7 +23,8 @@
 %left TIMES DIV
 %right NOT SIN COS SQRT
 
-%token IF ELSE WHILE
+%token IF WHILE
+%right CLOSE ELSE
 %token PROCEDURE CALL PARAM
 
 %type <n> decl
@@ -61,12 +62,10 @@ stmt: FOR ID ASSIGN expr
 	  DO {printf("{ /tlt%s exch store\n",$2->symbol);} 
 	     stmt {printf("} for\n");};
 
-stmt: IF expr {printf("\n{");} 
-	COPEN stmtlist CCLOSE elsepart;
-
-elsepart: {printf("} if \n");};
-elsepart: ELSE {printf("} {");} 
-	COPEN stmtlist CCLOSE {printf("} ifelse \n");};
+stmt: ifbegin ifend
+ifbegin: IF OPEN expr {printf("\n{");} 
+ifend: CLOSE stmt {printf("} if \n");};
+ifend: CLOSE stmt ELSE {printf("} {");} stmt {printf("} ifelse \n");};
 
 stmt: WHILE {printf("\n{");} 
 	expr {printf("{} {exit} ifelse \n");} 
@@ -77,7 +76,7 @@ stmt: PROCEDURE ID {printf("\n/proc%s {", $2->symbol);}
 
 stmt: COPEN stmtlist CCLOSE ;
 
-stmt: CALL ID factorlist SEMICOLON {printf("proc%s\n", $2->symbol)};
+stmt: CALL ID factorlist SEMICOLON {printf("proc%s\n", $2->symbol);};
 
 expr: expr OR expr {printf("or ");};	 
 expr: expr AND expr {printf("and ");};	 

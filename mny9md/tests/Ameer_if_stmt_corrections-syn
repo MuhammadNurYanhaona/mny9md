@@ -1,0 +1,20 @@
+//IF ELSE statement with 1 statement in the clause does not pass without curly braces.
+
+VAR x;
+VAR y;
+
+x = 5;
+y = 100;
+
+IF (x > 5) 
+	GO 50;
+ELSE
+	GO 90;
+
+IF (x > 1)
+	IF (y < 100)
+		GO 100;
+	ELSE
+		TURN 90;
+
+GO 150;
