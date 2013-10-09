@@ -1,0 +1,37 @@
+// Missing ( ) for WHILE expression appears to be valid even though it should not be
+
+VAR x;
+VAR y;
+
+x = 0;
+y = 5;
+
+// valid
+WHILE (x < 8) {
+
+    GO 50;
+    TURN 270;
+    JUMP 5;
+    TURN 90;
+    x=x+1;
+    y=y*x;
+}
+
+x = 0;
+
+// valid
+WHILE (x < 8)
+    x = x + 1; 		
+
+// invalid
+WHILE x < 8 {
+
+    GO 50;
+    TURN 270;
+    JUMP 5;
+    TURN 90;
+    x=x+1;
+    y=y*x;
+}
+
+

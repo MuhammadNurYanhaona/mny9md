@@ -68,8 +68,8 @@ ifend: CLOSE stmt {printf("} if \n");};
 ifend: CLOSE stmt ELSE {printf("} {");} stmt {printf("} ifelse \n");};
 
 stmt: WHILE {printf("\n{");} 
-	expr {printf("{} {exit} ifelse \n");} 
-	COPEN stmtlist CCLOSE {printf("} loop \n");};
+	OPEN expr CLOSE {printf("{} {exit} ifelse \n");} 
+	stmt {printf("} loop \n");};
 
 stmt: PROCEDURE ID {printf("\n/proc%s {", $2->symbol);}  
 	COPEN decllist stmtlist CCLOSE { printf("} def\n");};
