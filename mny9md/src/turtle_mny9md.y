@@ -95,8 +95,8 @@ expr: factor;
 factorlist: ;
 factorlist: factorlist factor ;
 
-factor: MINUS atomic { printf("neg ");};
-factor: PLUS atomic ;
+factor: MINUS factor { printf("neg ");};
+factor: PLUS factor ;
 factor: SIN factor { printf("sin ");};
 factor: COS factor { printf("cos ");};
 factor: SQRT factor { printf("sqrt ");};

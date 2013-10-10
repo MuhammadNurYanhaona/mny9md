@@ -1,0 +1,3 @@
+// Unary minus does not work before a factor
+
+TURN -cos 80;
