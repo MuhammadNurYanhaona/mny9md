@@ -116,6 +116,17 @@ class ArithmeticExpr : public CompoundExpr
     const char *GetPrintNameForNode() { return "ArithmeticExpr"; }
 };
 
+class PostfixExpr : public Expr 
+{
+  protected:
+    Operator *op;
+    Expr *left;		
+  public:
+    PostfixExpr(Expr *lhs, Operator *op);
+    void PrintChildren(int indentLevel);
+    const char *GetPrintNameForNode() { return "PostfixExpr"; }
+};
+
 class RelationalExpr : public CompoundExpr 
 {
   public:

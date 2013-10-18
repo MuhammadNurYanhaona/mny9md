@@ -68,8 +68,19 @@ void CompoundExpr::PrintChildren(int indentLevel) {
    op->Print(indentLevel+1);
    right->Print(indentLevel+1);
 }
-   
-  
+
+PostfixExpr::PostfixExpr(Expr *l, Operator *o)
+  : Expr(Join(l->GetLocation(), o->GetLocation())) {
+    Assert(l != NULL && o != NULL);
+    (left=l)->SetParent(this);				
+    (op=o)->SetParent(this);
+}
+
+void PostfixExpr::PrintChildren(int indentLevel) {
+    left->Print(indentLevel + 1);
+    op->Print(indentLevel + 1);		
+}
+ 
 ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
     (base=b)->SetParent(this); 
     (subscript=s)->SetParent(this);
