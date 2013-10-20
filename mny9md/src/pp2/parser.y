@@ -57,13 +57,16 @@ void yyerror(const char *msg); // standard error-handling routine
     List<VarDecl*> *varList;
     List<Decl*> *declList;
     Expr *expr;
-    List<Expr*> *exprList;	
+    List<Expr*> *exprList;	  	
     WhileStmt *whileStmt;
     IfStmt *ifStmt;
     ForStmt *forStmt;
     ReturnStmt *returnStmt;
     BreakStmt *breakStmt;
-    PrintStmt *printStmt;	    	
+    PrintStmt *printStmt;
+    SwitchStmt *switchStmt;
+    CaseStmt *caseStmt;
+    List<CaseStmt*> *caseStmtList;	    	
 }
 
 
@@ -120,7 +123,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <cDecl>		ClassDecl
 %type <iDecl>		InterfaceDecl
 %type <stmt>      	StmtBlock Stmt
-%type <stmtList>	OneOrMoreStmt
+%type <stmtList>	OneOrMoreStmt StmtList
 %type <whileStmt> 	WhileStmt
 %type <forStmt>   	ForStmt
 %type <ifStmt>    	IfStmt
@@ -129,6 +132,9 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <printStmt>	PrintStmt
 %type <expr>	  	Expr OptionalExpr LValueWithPostfix LValue Constant Call
 %type <exprList>	ExprList Actuals
+%type <switchStmt>	SwitchStmt
+%type <caseStmt>	Case Default
+%type <caseStmtList>	Cases CaseBlock
 	
 %%
 /* Rules
@@ -250,6 +256,7 @@ Stmt	:	';'		{ $$ = new EmptyExpr(); }
 	|	ReturnStmt	{ $$ = $1; }
 	|	PrintStmt	{ $$ = $1; }
 	|	StmtBlock	{ $$ = $1; }
+	| 	SwitchStmt
 ;
 
 IfStmt	: T_If '(' Expr ')' Stmt %prec T_Then 	{ $$ = new IfStmt($3, $5, NULL); }
@@ -271,6 +278,28 @@ BreakStmt  : T_Break ';'	{ $$ = new BreakStmt(@1); }
 
 PrintStmt   : T_Print '(' ExprList ')' ';'	{ $$ = new PrintStmt($3); }
 ;
+
+SwitchStmt	: T_Switch '(' Expr ')' CaseBlock	
+				{ $$ = new SwitchStmt($3, $5); }
+;
+
+CaseBlock	: '{' Cases Default '}'	{ ($$ = $2)->Append($3); }
+		| '{' Cases '}'		{ $$ = $2; }
+;
+
+Cases	: Cases Case	{ ($$ = $1)->Append($2); }
+	| Case		{ ($$ = new List<CaseStmt*>)->Append($1); }
+;
+
+Case	: T_Case T_IntConstant ':' StmtList	{ $$ = new CaseStmt(new IntConstant(@2, $2), $4); }
+;
+
+Default	: T_Default ':' StmtList	{ $$ = new CaseStmt($3); }
+;
+
+StmtList	: OneOrMoreStmt	{ $$ = $1; }
+		|		{ $$ = new List<Stmt*>; }	
+;	
 
 ExprList : Expr			{ ($$ = new List<Expr*>)->Append($1); }
 	 | ExprList ',' Expr	{ ($$=$1)->Append($3); }
