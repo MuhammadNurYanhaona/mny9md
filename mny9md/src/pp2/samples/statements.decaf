@@ -1,0 +1,17 @@
+void main(string[] args) {
+	
+	int matching;
+	int i;
+	int argCount;
+	argumentCount = args.arrayLength();
+
+	for (i = 0; i < argCount; i++) {
+		printLine("Argument # ", i);
+		if (i % 4 == 0) {
+			matching = readInteger();
+			if (matching == atoi(args[i])) printLine("The 4th argument ", args[i]);
+		} else {
+			printLine("Another argument ", args[i]);    	
+		}
+	}
+}

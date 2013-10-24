@@ -1,0 +1,27 @@
+void main(string[] args) {
+	
+	int value;
+	int index;
+	
+	if (args.arrayLength() > 0)
+		value = atoi(args[0]);
+	if (args.arrayLength() > 1)
+		index = atoi(args[1]);
+	else {
+		value = 10;
+		index = 5;
+	}
+	
+	switch (value) {
+		case 10:
+			index++;
+			break;
+		case 5:
+			index--;
+			break;
+		case 1:
+			index++ = value--; 
+	}
+
+	printLine("Value ", value, " Index ", index);
+}

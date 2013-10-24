@@ -1,0 +1,28 @@
+interface Printer {
+	void printName();
+	void printDescription();
+}
+
+interface Scanner {
+	void readName();
+	int getAttributeCount();
+}
+
+class Company {
+	
+	int position;
+	string name;
+	string location;
+
+	void getLocation() {
+		location = readLine();
+	}	 	
+}
+
+class HP extends Company implements Printer, Scanner {
+	String owner;
+	String establishmentTime;
+	void setName() {
+		this.name = "HP"; 
+	}
+}
