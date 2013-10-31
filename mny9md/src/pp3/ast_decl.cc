@@ -33,7 +33,7 @@ void VarDecl::checkSemantics(Scope *currentScope) {
  	
 	// check for existence of the type
 	if (coreType->getVariableType() == Object 
-			&& currentScope->lookup(type->getName()) == NULL) {
+			&& currentScope->lookup(coreType->getName()) == NULL) {
 		ReportError::IdentifierNotDeclared(
 			((NamedType *) coreType)->getIdentifier(), LookingForType);
 	}
