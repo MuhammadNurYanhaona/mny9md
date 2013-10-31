@@ -36,7 +36,7 @@
 class Scope;
 
 enum SymbolType {Variable, Class, Interface, Function, Error, NotApplicable};
-
+enum ScopeType {GlobalScope, InterfaceScope, ClassScope, FunctionScope, StatementBlockScope, ExecutionScope};
 
 class Node 
 {

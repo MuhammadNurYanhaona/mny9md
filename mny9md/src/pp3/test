@@ -1,7 +1,32 @@
-class Student {
-	void printName() {}
+class Student extends Object implements Human, LivingEntity {
+	string name;
+	int printName() {}
+	int printMajor() {}
+	int printHobby(string hobby, int timeSpend) {}
+	int printGoal(double[] goal) {}
+	int printCourseHistory(int year, double[][] grades) {}
 }
 
-class Student extends Person {
+class Student extends Person implements Human {
 	void printSomething() {}
 }
+
+interface Human {
+	int printHobby(string hob, int time);
+	int printGoal(String goal);
+}
+
+class Object {
+	string name;
+	int printName() {}
+	void printMajor() {}
+	int printCourseHistory(int year, double[][] grades) {}
+}
+
+interface Human {
+	int getName();
+	int getLocation(Double[][] param);
+	int getLocation(double[][] param);
+}
+
+

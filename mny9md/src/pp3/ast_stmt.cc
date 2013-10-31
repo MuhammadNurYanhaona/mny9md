@@ -30,7 +30,7 @@ void Program::Check() {
     // construct symbol tables for all classes, interfaces, and functions	
     Scope *globalScope = new Scope(GlobalScope);
     ConstructSymbolTable(globalScope);
-   
+    
     // then start semantic validation using an in-order traversal	
     checkSemantics(globalScope);   	
 }

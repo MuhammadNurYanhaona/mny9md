@@ -1,6 +1,7 @@
 #ifndef _H_symbol
 #define _H_symbol
 
+#include "ast.h"
 #include "hashtable.h"
 #include "ast_decl.h"
 
@@ -8,20 +9,23 @@ class Scope;
 
 class Symbol {
     protected:
-        char *name;
+        const char *name;
         SymbolType type;
         Decl *decl;
         Scope *nestedScope;
+	ScopeType scopeType;
 
     public:
         Symbol(Decl *decl);
-        Symbol(char *name, SymbolType type);
+        Symbol(const char *name, SymbolType type);
 
-        char* getName() { return name; }
+        const char* getName() { return name; }
         Decl* getDecl() { return decl; }
         SymbolType getType() { return type; }
         void setNestedScope(Scope *scope) { this->nestedScope = scope; }
         Scope *getNestedScope() { return nestedScope; }
+	void setScopeType(ScopeType scopeType) { this->scopeType = scopeType; }
+	ScopeType getScopeType() { return scopeType; }
         virtual bool isEquivalentType(Symbol *otherSymbol) { return this->type == otherSymbol->type; }
         virtual bool isCompatibleType(Symbol *otherSymbol) { return false; }
 	virtual void describe(const char *indent) {}
@@ -35,28 +39,29 @@ class InterfaceSymbol : public Symbol {
 
 class ClassSymbol : public Symbol {
     protected:
-	char* base;
-	List<char*> *interfaces;
+	const char* base;
+	List<const char*> *interfaces;
     
     public:
-	ClassSymbol(char *name, SymbolType type);
+	ClassSymbol(const char *name, SymbolType type);
 	ClassSymbol(Decl *decl);  			
 	void describe(const char *indent);     	
 };
 
 class FunctionSymbol : public Symbol {
     protected:
-	char *returnType;
-        List<char*> *parameterList;
+	const char *returnType;
+        List<const char*> *parameterList;
    
     public:	
-	FunctionSymbol(Decl *decl);	
+	FunctionSymbol(Decl *decl);
+	bool matchSignature(FunctionSymbol *otherSymbol);	
 	void describe(const char *indent);     	
 };
 
 class VariableSymbol : public Symbol {
     protected:
-	List<char*> *type;
+	List<const char*> *type;
 
     public:	  	
 	VariableSymbol(Decl *decl);

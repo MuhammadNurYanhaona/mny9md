@@ -27,9 +27,6 @@ Type::Type(const char *n) {
     Assert(n);
     typeName = strdup(n);
 }
-
-
-
 	
 NamedType::NamedType(Identifier *i) : Type(*i->GetLocation()) {
     Assert(i != NULL);
@@ -40,6 +37,14 @@ NamedType::NamedType(Identifier *i) : Type(*i->GetLocation()) {
 ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
     Assert(et != NULL);
     (elemType=et)->SetParent(this);	 
+		
+    desc.append("Array of ");
+    Type *nestedType = elemType;
+    while (nestedType->getVariableType() == Array) {
+	desc.append("Array of ");
+	nestedType = ((ArrayType *) nestedType)->elemType;
+    }
+    desc.append(nestedType->getName());
 }
 
 

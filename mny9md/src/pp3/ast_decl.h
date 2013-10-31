@@ -41,6 +41,7 @@ class VarDecl : public Decl
     VarDecl(Identifier *name, Type *type);
     SymbolType getSymbolType() { return Variable; }
     Type* getType() { return type; }			
+    void checkSemantics(Scope *currentScope);		
 };
 
 class ClassDecl : public Decl 
@@ -69,6 +70,7 @@ class InterfaceDecl : public Decl
     InterfaceDecl(Identifier *name, List<Decl*> *members);
     SymbolType getSymbolType() { return Interface; }	
     Scope* ConstructSymbolTable(Scope *currentScope);	
+    void checkSemantics(Scope *currentScope);		
 };
 
 class FnDecl : public Decl 
@@ -85,6 +87,7 @@ class FnDecl : public Decl
     List<VarDecl*>* getFormals() { return formals; }
     Type* getReturnType() { return returnType; }			
     Scope* ConstructSymbolTable(Scope *currentScope);	
+    void checkSemantics(Scope *currentScope);		
 };
 
 #endif

@@ -15,6 +15,7 @@
 #include "ast.h"
 #include "list.h"
 #include <iostream>
+#include "string"
 
 enum VariableType {Basic, Object, Array};
 
@@ -34,7 +35,7 @@ class Type : public Node
     friend std::ostream& operator<<(std::ostream& out, Type *t) { t->PrintToStream(out); return out; }
     virtual bool IsEquivalentTo(Type *other) { return this == other; }
     virtual SymbolType getSymbolType() { return Class; }
-    virtual char* getName() { return typeName; }
+    virtual const char* getName() { return typeName; }
     virtual VariableType getVariableType() { return Basic; }			
 };
 
@@ -46,7 +47,7 @@ class NamedType : public Type
   public:
     NamedType(Identifier *i);
     
-    char* getName() { return id->getName(); }
+    const char* getName() { return id->getName(); }
     Identifier* getIdentifier() { return id; }		
     VariableType getVariableType() { return Object; }			
     void PrintToStream(std::ostream& out) { out << id; }
@@ -55,13 +56,15 @@ class NamedType : public Type
 class ArrayType : public Type 
 {
   protected:
-    Type *elemType; 	
+    Type *elemType;
+    std::string desc;		
 
   public:
     ArrayType(yyltype loc, Type *elemType);
  
     VariableType getVariableType() { return Array; }			
-    Type* getElementType() { return elemType; }	   
+    Type* getElementType() { return elemType; }
+    const char* getName() { return desc.c_str(); }		   
     void PrintToStream(std::ostream& out) { out << elemType << "[]"; }
 };
 

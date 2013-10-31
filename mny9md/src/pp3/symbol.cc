@@ -13,7 +13,7 @@ Symbol::Symbol(Decl *decl) {
         this->nestedScope = NULL;
 }
 
-Symbol::Symbol(char *name, SymbolType type) {
+Symbol::Symbol(const char *name, SymbolType type) {
         this->name = name;
         this->type = type;
         this->decl = NULL;
@@ -24,14 +24,14 @@ void InterfaceSymbol::describe(const char *indent) {
 	printf("%sInterface: %s\n", indent, name);
 }
 
-ClassSymbol::ClassSymbol(char *name, SymbolType type) : Symbol(name, type) {
+ClassSymbol::ClassSymbol(const char *name, SymbolType type) : Symbol(name, type) {
 	base = NULL;
-	interfaces = new List<char*>;
+	interfaces = new List<const char*>;
 }
 
 ClassSymbol::ClassSymbol(Decl *decl) : Symbol(decl) {
 	ClassDecl* classDecl = (ClassDecl*) decl;
-	interfaces = new List<char*>;
+	interfaces = new List<const char*>;
 	List<NamedType*> *implements = classDecl->getImplements();
 	for (int i = 0; i < implements->NumElements(); i++) {
 		interfaces->Append(implements->Nth(i)->getName());
@@ -55,12 +55,22 @@ void ClassSymbol::describe(const char *indent) {
 
 FunctionSymbol::FunctionSymbol(Decl *decl) : Symbol(decl) {
 	FnDecl *fnDecl = (FnDecl*) decl;
-	parameterList = new List<char*>;
+	parameterList = new List<const char*>;
 	List<VarDecl*> *formals = fnDecl->getFormals();
 	for (int i = 0; i < formals->NumElements(); i++) {
 		parameterList->Append(formals->Nth(i)->getType()->getName());
 	}
 	returnType = fnDecl->getReturnType()->getName();
+}
+
+bool FunctionSymbol::matchSignature(FunctionSymbol *otherSymbol) {
+	if (strcmp(returnType, otherSymbol->returnType) != 0) return false;
+	if (parameterList->NumElements() != otherSymbol->parameterList->NumElements()) return false;
+	for (int i = 0; i < parameterList->NumElements(); i++) {
+		if (strcmp(parameterList->Nth(i), 
+			otherSymbol->parameterList->Nth(i)) != 0) return false;
+	}
+	return true;
 }
 
 void FunctionSymbol::describe(const char *indent) {
@@ -74,12 +84,12 @@ void FunctionSymbol::describe(const char *indent) {
 
 VariableSymbol::VariableSymbol(Decl *decl) : Symbol(decl) {
 	VarDecl *varDecl = (VarDecl *) decl;
-	this->type = new List<char*>; 
+	this->type = new List<const char*>; 
 	Type *type = varDecl->getType();
 	while (type->getVariableType() == Array) {
 		ArrayType *arrayType = (ArrayType*) type;
 		type = arrayType->getElementType();
-		this->type->Append("Array");	
+		this->type->Append("Array of");	
 	}
 	this->type->Append(type->getName());
 }

@@ -18,6 +18,7 @@ Scope* Scope::enter_scope(ScopeType type) {
 
 void Scope::insert_symbol(Symbol *symbol) {
 	this->symbolTable->Enter(symbol->getName(), symbol, false);
+	symbol->setScopeType(this->type);
 }
 
 Symbol* Scope::insert_symbol(Decl *decl) {
@@ -38,17 +39,19 @@ Symbol* Scope::insert_symbol(Decl *decl) {
 	}
 
 	this->symbolTable->Enter(symbol->getName(), symbol, false);
+	symbol->setScopeType(this->type);
+
 	return symbol;
 }
 
-Symbol* Scope::lookup(char *key) {
+Symbol* Scope::lookup(const char *key) {
 	Symbol *symbol = symbolTable->Lookup(key);
 	if (symbol != NULL) return symbol;
 	if (this->parent == NULL) return NULL;
 	else return this->parent->lookup(key);
 }
 
-Symbol* Scope::local_lookup(char *key) {
+Symbol* Scope::local_lookup(const char *key) {
 	return symbolTable->Lookup(key);
 }
 
