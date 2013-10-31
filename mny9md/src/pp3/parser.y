@@ -64,9 +64,6 @@ void yyerror(const char *msg); // standard error-handling routine
     ReturnStmt *returnStmt;
     BreakStmt *breakStmt;
     PrintStmt *printStmt;
-    SwitchStmt *switchStmt;
-    CaseStmt *caseStmt;
-    List<CaseStmt*> *caseStmtList;	    	
 }
 
 
@@ -80,7 +77,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %token  T_Null T_Extends T_This T_Interface T_Implements
 %token  T_While T_For T_If T_Return T_Break
 %token  T_NewArray T_Print T_ReadInteger T_ReadLine
-%token	T_Switch T_Case T_Default
 %right	T_Then T_Else
 
 %token   <identifier> T_Identifier
@@ -99,7 +95,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %left '%' '*' '/'
 %right '!' T_New T_Unary
 %left T_LValue
-%left '.' '[' T_Dims T_Call T_Increment T_Decrement
+%left '.' '[' T_Dims T_Call
 
 /* Non-terminal types
  * ------------------
@@ -123,18 +119,15 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <cDecl>		ClassDecl
 %type <iDecl>		InterfaceDecl
 %type <stmt>      	StmtBlock Stmt
-%type <stmtList>	OneOrMoreStmt StmtList
+%type <stmtList>	OneOrMoreStmt
 %type <whileStmt> 	WhileStmt
 %type <forStmt>   	ForStmt
 %type <ifStmt>    	IfStmt
 %type <breakStmt> 	BreakStmt
 %type <returnStmt> 	ReturnStmt
 %type <printStmt>	PrintStmt
-%type <expr>	  	Expr OptionalExpr LValueWithPostfix LValue Constant Call
+%type <expr>	  	Expr OptionalExpr LValue Constant Call
 %type <exprList>	ExprList Actuals
-%type <switchStmt>	SwitchStmt
-%type <caseStmt>	Case Default
-%type <caseStmtList>	Cases CaseBlock
 	
 %%
 /* Rules
@@ -151,7 +144,7 @@ Program   :    DeclList            {
                                       Program *program = new Program($1);
                                       // if no errors, advance to next phase
                                       if (ReportError::NumErrors() == 0) 
-                                          program->Print(0);
+                                          program->Check();
                                     }
           ;
 
@@ -256,7 +249,6 @@ Stmt	:	';'		{ $$ = new EmptyExpr(); }
 	|	ReturnStmt	{ $$ = $1; }
 	|	PrintStmt	{ $$ = $1; }
 	|	StmtBlock	{ $$ = $1; }
-	| 	SwitchStmt	{ $$ = $1; }
 ;
 
 IfStmt	: T_If '(' Expr ')' Stmt %prec T_Then 	{ $$ = new IfStmt($3, $5, NULL); }
@@ -279,28 +271,6 @@ BreakStmt  : T_Break ';'	{ $$ = new BreakStmt(@1); }
 PrintStmt   : T_Print '(' ExprList ')' ';'	{ $$ = new PrintStmt($3); }
 ;
 
-SwitchStmt	: T_Switch '(' Expr ')' CaseBlock	
-				{ $$ = new SwitchStmt($3, $5); }
-;
-
-CaseBlock	: '{' Cases Default '}'	{ ($$ = $2)->Append($3); }
-		| '{' Cases '}'		{ $$ = $2; }
-;
-
-Cases	: Cases Case	{ ($$ = $1)->Append($2); }
-	| Case		{ ($$ = new List<CaseStmt*>)->Append($1); }
-;
-
-Case	: T_Case T_IntConstant ':' StmtList	{ $$ = new CaseStmt(new IntConstant(@2, $2), $4); }
-;
-
-Default	: T_Default ':' StmtList	{ $$ = new CaseStmt($3); }
-;
-
-StmtList	: OneOrMoreStmt	{ $$ = $1; }
-		|		{ $$ = new List<Stmt*>; }	
-;	
-
 ExprList : Expr			{ ($$ = new List<Expr*>)->Append($1); }
 	 | ExprList ',' Expr	{ ($$=$1)->Append($3); }
 ;
@@ -309,10 +279,10 @@ OptionalExpr : Expr	{ $$ = $1; }
 	     | 		{ $$ = new EmptyExpr(); }	
 ;
 
-Expr	: LValueWithPostfix '=' Expr %prec T_Assignment	
+Expr	: LValue '=' Expr %prec T_Assignment	
 						{ $$ = new AssignExpr($1, new Operator(@2, "="), $3); }
 	| Constant				{ $$ = $1; }
-	| LValueWithPostfix			{ $$ = $1; }
+	| LValue				{ $$ = $1; }
 	| T_This				{ $$ = new This(@1); }
 	| Call %prec T_Call			{ $$ = $1; }
 	| '(' Expr ')'				{ $$ = $2; }
@@ -335,13 +305,6 @@ Expr	: LValueWithPostfix '=' Expr %prec T_Assignment
 	| T_ReadLine '(' ')'			{ $$ = new ReadLineExpr(@1); }
 	| T_New '(' T_Identifier ')'		{ $$ = new NewExpr(@1, new NamedType(new Identifier(@3, $3))); }
 	| T_NewArray '(' Expr ',' Type ')'	{ $$ = new NewArrayExpr(@1, $3, $5); }
-	| Expr T_Increment			{ $$ = new PostfixExpr($1, new Operator(@2, "++")); }
-	| Expr T_Decrement			{ $$ = new PostfixExpr($1, new Operator(@2, "--")); }
-;
-
-LValueWithPostfix	: LValue T_Increment	{ $$ = new PostfixExpr($1, new Operator(@2, "++")); }
-			| LValue T_Decrement	{ $$ = new PostfixExpr($1, new Operator(@2, "--")); }
-			| LValue %prec T_LValue	{ $$ = $1; }
 ;
 
 LValue	: T_Identifier				{ $$ = new FieldAccess(NULL, new Identifier(@1, $1)); }
