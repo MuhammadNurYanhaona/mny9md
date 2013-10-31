@@ -39,6 +39,7 @@ class Stmt : public Node
   public:
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
+    virtual void checkSemantics(Scope *currentScope) {}	
 };
 
 class StmtBlock : public Stmt 
@@ -49,6 +50,7 @@ class StmtBlock : public Stmt
     
   public:
     StmtBlock(List<VarDecl*> *variableDeclarations, List<Stmt*> *statements);
+    void checkSemantics(Scope *currentScope);	
 };
 
   
@@ -76,12 +78,14 @@ class ForStmt : public LoopStmt
   
   public:
     ForStmt(Expr *init, Expr *test, Expr *step, Stmt *body);
+    void checkSemantics(Scope *currentScope);	
 };
 
 class WhileStmt : public LoopStmt 
 {
   public:
     WhileStmt(Expr *test, Stmt *body) : LoopStmt(test, body) {}
+    void checkSemantics(Scope *currentScope);	
 };
 
 class IfStmt : public ConditionalStmt 
@@ -91,6 +95,7 @@ class IfStmt : public ConditionalStmt
   
   public:
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
+    void checkSemantics(Scope *currentScope);	
 };
 
 class BreakStmt : public Stmt 

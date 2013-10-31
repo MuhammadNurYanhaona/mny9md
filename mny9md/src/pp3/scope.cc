@@ -10,12 +10,6 @@ Scope::Scope(ScopeType type) {
         symbolTable = new Hashtable<Symbol*>;
 }
 
-Scope* Scope::enter_scope(ScopeType type) {
-        Scope *newScope = new Scope(type);
-        newScope->parent = this;
-        return newScope;
-}
-
 void Scope::insert_symbol(Symbol *symbol) {
 	this->symbolTable->Enter(symbol->getName(), symbol, false);
 	symbol->setScopeType(this->type);

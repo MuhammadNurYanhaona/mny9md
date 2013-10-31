@@ -72,6 +72,22 @@ StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     (stmts=s)->SetParentAll(this);
 }
 
+void StmtBlock::checkSemantics(Scope *currentScope) {
+	Scope *blockScope = new Scope(StatementBlockScope);
+	currentScope = currentScope->enter_scope(blockScope);	
+	for (int i = 0; i < decls->NumElements(); i++) {
+		Decl *decl = decls->Nth(i);
+		if (blockScope->local_lookup(decl->getName()) == NULL) {	
+			blockScope->insert_symbol(decl);
+		}
+		decl->checkSemantics(currentScope);
+	}
+	for (int i = 0; i < stmts->NumElements(); i++) {
+		Stmt *stmt = stmts->Nth(i);
+		stmt->checkSemantics(currentScope);
+	}
+}
+
 ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) { 
     Assert(t != NULL && b != NULL);
     (test=t)->SetParent(this); 
@@ -84,12 +100,26 @@ ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) {
     (step=s)->SetParent(this);
 }
 
+void ForStmt::checkSemantics(Scope *currentScope) {
+	body->checkSemantics(currentScope);
+}
+
+void WhileStmt::checkSemantics(Scope *currentScope) {
+	body->checkSemantics(currentScope);
+}
+
 IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) { 
     Assert(t != NULL && tb != NULL); // else can be NULL
     elseBody = eb;
     if (elseBody) elseBody->SetParent(this);
 }
 
+void IfStmt::checkSemantics(Scope *currentScope) {
+	body->checkSemantics(currentScope);
+	if (elseBody != NULL) {
+		elseBody->checkSemantics(currentScope);
+	}
+}
 
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 
     Assert(e != NULL);

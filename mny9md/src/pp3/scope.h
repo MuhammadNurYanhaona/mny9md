@@ -18,7 +18,6 @@ class Scope {
     public:
 	Scope(ScopeType type);
 
-	Scope* enter_scope(ScopeType type);
 	Scope* enter_scope(Scope *newScope) { newScope->parent = this; return newScope; }
 	Symbol* insert_symbol(Decl *decl);
 	void insert_symbol(Symbol *symbol);

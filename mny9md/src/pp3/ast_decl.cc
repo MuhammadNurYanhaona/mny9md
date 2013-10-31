@@ -36,7 +36,7 @@ void VarDecl::checkSemantics(Scope *currentScope) {
 			&& currentScope->lookup(type->getName()) == NULL) {
 		ReportError::IdentifierNotDeclared(
 			((NamedType *) coreType)->getIdentifier(), LookingForType);
-	}	
+	}
 }
 
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
@@ -76,6 +76,16 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 		classScope = symbol->getNestedScope();
 	}
 	
+	// check the validity of the superclass, if present
+	if (this->extends != NULL) {
+		Symbol* base = currentScope->lookup(this->extends->getName());
+		if (base != NULL) {
+			currentScope = currentScope->enter_scope(base->getNestedScope());
+		} else {
+			ReportError::IdentifierNotDeclared(this->extends->getIdentifier(), LookingForClass);
+		}
+	}
+	
 	// check if all implemented interfaces are indeed present
 	for (int i = 0; i < implements->NumElements(); i++) {
 		NamedType* iName = implements->Nth(i);
@@ -87,16 +97,6 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 		}
 	}
 	
-	// check the validity of the superclass, if present
-	if (this->extends != NULL) {
-		Symbol* base = currentScope->lookup(this->extends->getName());
-		if (base != NULL) {
-			currentScope = currentScope->enter_scope(base->getNestedScope());
-		} else {
-			ReportError::IdentifierNotDeclared(this->extends->getIdentifier(), LookingForClass);
-		}
-	}
-
 	// validate all member declarations
 	for (int i = 0; i < members->NumElements(); i++) {
 		
@@ -186,6 +186,9 @@ void FnDecl::checkSemantics(Scope *currentScope) {
 	for (int i = 0; i < formals->NumElements(); i++) {
 		Decl *decl = formals->Nth(i);
 		decl->checkSemantics(currentScope);	
+	}
+	if (body != NULL) {
+		body->checkSemantics(currentScope);
 	}
 }
 
