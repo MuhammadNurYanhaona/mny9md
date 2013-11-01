@@ -39,7 +39,7 @@ class Stmt : public Node
   public:
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
-    virtual void checkSemantics(Scope *currentScope) {}	
+     virtual void checkSemantics(Scope *currentScope) {}	
 };
 
 class StmtBlock : public Stmt 
@@ -122,5 +122,28 @@ class PrintStmt : public Stmt
     PrintStmt(List<Expr*> *arguments);
 };
 
+class CaseStmt : public Stmt
+{
+  protected:
+    Stmt *value;
+    List<Stmt*> *stmts;
+    const char *name;
+
+  public:
+    CaseStmt(Stmt *value, List<Stmt*> *s);
+    CaseStmt(List<Stmt*> *s);
+    void checkSemantics(Scope *currentScope);	
+};
+
+class SwitchStmt : public Stmt
+{
+  protected:
+    Expr *condition;
+    List<CaseStmt*> *cases;
+
+  public:
+    SwitchStmt(Expr *co, List<CaseStmt*> *ca);
+    void checkSemantics(Scope *currentScope);	
+};
 
 #endif

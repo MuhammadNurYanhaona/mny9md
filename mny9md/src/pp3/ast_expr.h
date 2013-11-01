@@ -106,6 +106,16 @@ class ArithmeticExpr : public CompoundExpr
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
 };
 
+class PostfixExpr : public Expr
+{
+  protected:
+    Operator *op;
+    Expr *left;
+  public:
+    PostfixExpr(Expr *lhs, Operator *op);
+    const char *GetPrintNameForNode() { return "PostfixExpr"; }
+};
+
 class RelationalExpr : public CompoundExpr 
 {
   public:

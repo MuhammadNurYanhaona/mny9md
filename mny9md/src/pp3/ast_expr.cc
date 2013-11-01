@@ -45,8 +45,14 @@ CompoundExpr::CompoundExpr(Operator *o, Expr *r)
     (op=o)->SetParent(this);
     (right=r)->SetParent(this);
 }
-   
-  
+
+PostfixExpr::PostfixExpr(Expr *l, Operator *o)
+  : Expr(Join(l->GetLocation(), o->GetLocation())) {
+    Assert(l != NULL && o != NULL);
+    (left=l)->SetParent(this);
+    (op=o)->SetParent(this);
+}
+
 ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
     (base=b)->SetParent(this); 
     (subscript=s)->SetParent(this);

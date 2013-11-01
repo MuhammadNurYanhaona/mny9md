@@ -131,4 +131,35 @@ PrintStmt::PrintStmt(List<Expr*> *a) {
     (args=a)->SetParentAll(this);
 }
 
+CaseStmt::CaseStmt(Stmt *v, List<Stmt*> *s) {
+   Assert(v != NULL && s != NULL);
+   (value = v)->SetParent(this);
+   (stmts = s)->SetParentAll(this);
+   name = "Case";
+}
 
+CaseStmt::CaseStmt(List<Stmt*> *s) {
+   Assert(s != NULL);
+   (stmts = s)->SetParentAll(this);
+   name = "Default";
+}
+
+void CaseStmt::checkSemantics(Scope *currentScope) {
+   for (int i = 0; i < stmts->NumElements(); i++) {
+       Stmt* stmt = stmts->Nth(i);
+       stmt->checkSemantics(currentScope); 
+   }
+}
+
+SwitchStmt::SwitchStmt(Expr *co, List<CaseStmt*> *ca) {
+    Assert(co != NULL && ca != NULL);
+    (condition = co)->SetParent(this);
+    (cases = ca)->SetParentAll(this);
+}
+
+void SwitchStmt::checkSemantics(Scope *currentScope) {
+    for (int i = 0; i < cases->NumElements(); i++) {
+        CaseStmt *ca = cases->Nth(i);
+        ca->checkSemantics(currentScope);
+    }
+}
