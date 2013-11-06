@@ -1,0 +1,11 @@
+class Rectangle implements Colorable {
+	void colorIt(int color) {}
+	int printIt(Colorable it) {}
+}
+
+interface Colorable {
+	void colorIt(int color);
+	int printIt(Colorable it);
+}
+
+
