@@ -37,7 +37,7 @@ void VarDecl::checkSemantics(Scope *currentScope) {
 		ReportError::IdentifierNotDeclared(
 			((NamedType *) coreType)->getIdentifier(), LookingForType);
 
-		// Enter an arror symbol for this declaration to avoid more type checking error messages
+		// Enter an error symbol for this declaration to avoid more type checking error messages
 		currentScope->insert_symbol(new ErrorSymbol(this));
 	}
 }

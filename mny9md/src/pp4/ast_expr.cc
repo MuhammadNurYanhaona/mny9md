@@ -13,19 +13,23 @@
 
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
+    exprType = Type::intType;	
 }
 
 DoubleConstant::DoubleConstant(yyltype loc, double val) : Expr(loc) {
     value = val;
+    exprType = Type::doubleType;	
 }
 
 BoolConstant::BoolConstant(yyltype loc, bool val) : Expr(loc) {
     value = val;
+    exprType = Type::boolType;
 }
 
 StringConstant::StringConstant(yyltype loc, const char *val) : Expr(loc) {
     Assert(val != NULL);
     value = strdup(val);
+    exprType = Type::stringType;
 }
 
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
@@ -61,6 +65,7 @@ void This::checkSemantics(Scope *currentScope) {
 		ReportError::ThisOutsideClassScope(this);	
 	} else {
 		typeSymbol = currentScope->lookup(classScope->getName());
+		exprType = typeSymbol->getAstType();
 	}
 }
 
@@ -88,24 +93,22 @@ void FieldAccess::checkSemantics(Scope *currentScope) {
 	if (base != NULL) {
 		base->checkSemantics(currentScope);
 		Symbol *baseSymbol = base->getTypeSymbol(currentScope);
+		baseType = base->getExprType();
 
 		if (baseSymbol == NULL || baseSymbol->getType() == Error) {
 			validateField = false;
 		} else if (baseSymbol->getType() == Class) {
 			// base is a this pointer
 			fieldAccessScope = baseSymbol->getNestedScope();
-			baseType = new NamedType(baseSymbol->getDecl()->getIdentifier());
 		} else if (baseSymbol->getType() == Variable) {
 			// base is a derived variable so retrieve and check type access 
-			VariableSymbol *vs = (VariableSymbol *) (baseSymbol);
-			baseType = vs->getDeclType();
 			if (baseType->getVariableType() == Array) {
 				// trying to access elements of an array as fields
 				ReportError::InaccessibleField(field, baseType);
 			} else {
 				// retrieve the scope for the type
 				Symbol *typeSymbol = currentScope->lookup(baseType->getName());
-				fieldAccessScope = currentScope->lookup(typeSymbol->getName())->getNestedScope();
+				fieldAccessScope = typeSymbol->getNestedScope();
 			}
 		}
 	} else { fieldAccessScope = currentScope; }
@@ -122,7 +125,9 @@ void FieldAccess::checkSemantics(Scope *currentScope) {
 			}
 			currentScope->insert_symbol(new ErrorSymbol(field->getName()));	
 		} else {
+			// store the symbol and type for later expression validation
 			this->typeSymbol = symbol;
+			this->exprType = symbol->getAstType();
 			// check if access to the field is possible from the base
 			if (baseType != NULL && 
 				fieldAccessScope != currentScope->getClosestScopeByType(ClassScope)) {
@@ -149,14 +154,13 @@ void Call::checkSemantics(Scope *currentScope) {
 	if (base != NULL) {
 		base->checkSemantics(currentScope);
 		Symbol *baseSymbol = base->getTypeSymbol(currentScope);
+		Type* baseType = base->getExprType();
 		if (baseSymbol == NULL || baseSymbol->getType() == Error) validateFunction = false;
 		else if (baseSymbol->getType() == Class) {
 			// accessing a function through the this pointer
 			functionScope = baseSymbol->getNestedScope();
 		} else if (baseSymbol->getType() == Variable) {
 			// base is a derived variable so retrieve and check type access 
-			VariableSymbol *vs = (VariableSymbol *) (baseSymbol);
-			Type* baseType = vs->getDeclType();
 			if (baseType->getVariableType() == Array) {
 				// trying to access elements of an array as fields
 				ReportError::InaccessibleField(field, baseType);
@@ -164,7 +168,7 @@ void Call::checkSemantics(Scope *currentScope) {
 			} else {
 				// retrieve the scope for the type
 				Symbol *typeSymbol = currentScope->lookup(baseType->getName());
-				functionScope = currentScope->lookup(typeSymbol->getName())->getNestedScope();
+				functionScope = typeSymbol->getNestedScope();
 			}	
 		}
 	}
@@ -185,7 +189,8 @@ void Call::checkSemantics(Scope *currentScope) {
 				ReportError::NumArgsMismatch(field, formalParams, actualParams);
 			}
 			// set the type of the call expression
-			typeSymbol = functionScope->lookup(functionSymbol->getReturnType());	
+			typeSymbol = functionScope->lookup(functionSymbol->getReturnType());
+			exprType = functionSymbol->getAstType();	
 		}
 	}
 	// do recursive validation of each parameter
@@ -202,6 +207,15 @@ NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) {
   (cType=c)->SetParent(this);
 }
 
+void NewExpr::checkSemantics(Scope *currentScope) {
+	Symbol* symbol = currentScope->lookup(cType->getName());
+	if (symbol == NULL || symbol->getType() != Class) {
+		ReportError::IdentifierNotDeclared(cType->getIdentifier(), LookingForType);
+	} else {
+		this->typeSymbol = symbol;
+		this->exprType = cType;
+	}
+}
 
 NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     Assert(sz != NULL && et != NULL);
@@ -209,4 +223,24 @@ NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     (elemType=et)->SetParent(this);
 }
 
+void NewArrayExpr::checkSemantics(Scope *currentScope) {
+    
+    size->checkSemantics(currentScope);
+    Type* type = size->getExprType();
+    if (type != Type::intType || type != Type::errorType) {
+	ReportError::NewArraySizeNotInteger(size);
+    }
+
+    Type *coreType = elemType;
+    while (coreType->getVariableType() == Array) {
+	coreType = ((ArrayType *) coreType)->getElementType();
+    }
+    Symbol* symbol = currentScope->lookup(coreType->getName());
+    if (symbol == NULL) {
+	ReportError::IdentifierNotDeclared(((NamedType *) coreType)->getIdentifier(), LookingForType);
+    } else {
+	this->typeSymbol = symbol;
+	this->exprType = new ArrayType(*location, elemType);
+    }			 	
+}
        

@@ -38,12 +38,12 @@ void Program::Check() {
 Scope* Program::ConstructSymbolTable(Scope *currentScope) { 
 
     // insert the default classes in the scope	
-    currentScope->insert_symbol(new ClassSymbol(Type::intType->getName(), Class));	
-    currentScope->insert_symbol(new ClassSymbol(Type::doubleType->getName(), Class));	
-    currentScope->insert_symbol(new ClassSymbol(Type::boolType->getName(), Class));	
-    currentScope->insert_symbol(new ClassSymbol(Type::stringType->getName(), Class));	
-    currentScope->insert_symbol(new ClassSymbol(Type::voidType->getName(), Class));
-    currentScope->insert_symbol(new ClassSymbol(Type::nullType->getName(), Class));
+    currentScope->insert_symbol(new ClassSymbol(Type::intType));	
+    currentScope->insert_symbol(new ClassSymbol(Type::doubleType));	
+    currentScope->insert_symbol(new ClassSymbol(Type::boolType));	
+    currentScope->insert_symbol(new ClassSymbol(Type::stringType));	
+    currentScope->insert_symbol(new ClassSymbol(Type::voidType));
+    currentScope->insert_symbol(new ClassSymbol(Type::nullType));
     // insert a place holder error symbol to be used in all error cases		
     currentScope->insert_symbol(new ErrorSymbol(Type::errorType->getName()));	
 
@@ -122,6 +122,21 @@ void IfStmt::checkSemantics(Scope *currentScope) {
 	body->checkSemantics(currentScope);
 	if (elseBody != NULL) {
 		elseBody->checkSemantics(currentScope);
+	}
+}
+
+void BreakStmt::checkSemantics(Scope *currentScope) {
+	bool insideLoop = false;
+	Node *p = this->GetParent();
+	while (p != NULL) {
+		if (p->isLoop()) {
+			insideLoop = true;
+			break;
+		}
+		p = p->GetParent();
+	}
+	if (!insideLoop) {
+ 		ReportError::BreakOutsideLoop(this);
 	}
 }
 

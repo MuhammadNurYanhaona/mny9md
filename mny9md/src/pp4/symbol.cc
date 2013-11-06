@@ -11,6 +11,7 @@ Symbol::Symbol(Decl *decl) {
         type = decl->getSymbolType();
         this->decl = decl;
         this->nestedScope = NULL;
+	this->astType = Type::errorType;
 }
 
 Symbol::Symbol(const char *name, SymbolType type) {
@@ -18,13 +19,19 @@ Symbol::Symbol(const char *name, SymbolType type) {
         this->type = type;
         this->decl = NULL;
         this->nestedScope = NULL;
+	this->astType = Type::errorType;
+}
+
+InterfaceSymbol::InterfaceSymbol(Decl *decl) : Symbol(decl) {
+	astType = new NamedType(decl->getIdentifier());
 }
 
 void InterfaceSymbol::describe(const char *indent) {
 	printf("%sInterface: %s\n", indent, name);
 }
 
-ClassSymbol::ClassSymbol(const char *name, SymbolType type) : Symbol(name, type) {
+ClassSymbol::ClassSymbol(Type *type) : Symbol(type->getName(), Class) {
+	this->astType = type;
 	base = NULL;
 	interfaces = new List<const char*>;
 	this->nestedScope = new Scope(ClassScope);
@@ -38,6 +45,7 @@ ClassSymbol::ClassSymbol(Decl *decl) : Symbol(decl) {
 		interfaces->Append(implements->Nth(i)->getName());
 	}
 	base = NULL;
+	astType = new NamedType(decl->getIdentifier());
 	if (classDecl->getExtends() != NULL) {
 		base = classDecl->getExtends()->getName();
 	}
@@ -62,6 +70,7 @@ FunctionSymbol::FunctionSymbol(Decl *decl) : Symbol(decl) {
 		parameterList->Append(formals->Nth(i)->getType()->getName());
 	}
 	returnType = fnDecl->getReturnType()->getName();
+	astType = fnDecl->getReturnType();
 }
 
 bool FunctionSymbol::matchSignature(FunctionSymbol *otherSymbol) {
@@ -93,11 +102,7 @@ VariableSymbol::VariableSymbol(Decl *decl) : Symbol(decl) {
 		this->type->Append("Array of");	
 	}
 	this->type->Append(type->getName());
-}
-
-Type* VariableSymbol::getDeclType() {
-	VarDecl *varDecl = (VarDecl *) decl;
-	return varDecl->getType();
+	this->astType = varDecl->getType();
 }
 
 void VariableSymbol::describe(const char *indent) {

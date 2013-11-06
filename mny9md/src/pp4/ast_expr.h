@@ -26,15 +26,17 @@ class Type; // for NewArray
 class Expr : public Stmt 
 {
   protected:
-    Symbol *typeSymbol;    
+    Symbol *typeSymbol;
+    Type* exprType;	    
 	
   public:
-    Expr(yyltype loc) : Stmt(loc) { typeSymbol = NULL; }	
-    Expr() : Stmt() { typeSymbol = NULL; }
+    Expr(yyltype loc) : Stmt(loc) { typeSymbol = NULL;  exprType = Type::errorType; }	
+    Expr() : Stmt() { typeSymbol = NULL; exprType = Type::errorType; }
     virtual Symbol* getTypeSymbol(Scope *currentScope)
 		{ if (typeSymbol == NULL) return currentScope->lookup("error");
 		  else return typeSymbol; 
-		}	
+		}
+    Type* getExprType() { return exprType; } 		
 };
 
 /* This node type is used for those places where an expression is optional.
@@ -52,8 +54,7 @@ class IntConstant : public Expr
   
   public:
     IntConstant(yyltype loc, int val);
-    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("int"); }	
-    	
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("int"); }	 	
 };
 
 class DoubleConstant : public Expr 
@@ -89,7 +90,7 @@ class StringConstant : public Expr
 class NullConstant: public Expr 
 {
   public: 
-    NullConstant(yyltype loc) : Expr(loc) {}
+    NullConstant(yyltype loc) : Expr(loc) { exprType = Type::nullType; }
     virtual Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("null"); }
 };
 
@@ -221,6 +222,7 @@ class NewExpr : public Expr
     
   public:
     NewExpr(yyltype loc, NamedType *clsType);
+    void checkSemantics(Scope *currentScope);
 };
 
 class NewArrayExpr : public Expr
@@ -231,6 +233,7 @@ class NewArrayExpr : public Expr
     
   public:
     NewArrayExpr(yyltype loc, Expr *sizeExpr, Type *elemType);
+    void checkSemantics(Scope *currentScope);
 };
 
 class ReadIntegerExpr : public Expr

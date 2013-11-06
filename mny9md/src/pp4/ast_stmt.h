@@ -69,6 +69,7 @@ class LoopStmt : public ConditionalStmt
   public:
     LoopStmt(Expr *testExpr, Stmt *body)
             : ConditionalStmt(testExpr, body) {}
+    bool isLoop() { return true; }	
 };
 
 class ForStmt : public LoopStmt 
@@ -102,6 +103,7 @@ class BreakStmt : public Stmt
 {
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
+    void checkSemantics(Scope *currentScope);	
 };
 
 class ReturnStmt : public Stmt  
@@ -132,7 +134,8 @@ class CaseStmt : public Stmt
   public:
     CaseStmt(Stmt *value, List<Stmt*> *s);
     CaseStmt(List<Stmt*> *s);
-    void checkSemantics(Scope *currentScope);	
+    void checkSemantics(Scope *currentScope);
+    bool isLoop() { return true; }	
 };
 
 class SwitchStmt : public Stmt

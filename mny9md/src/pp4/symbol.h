@@ -8,10 +8,13 @@
 
 class Scope;
 
+
+
 class Symbol {
     protected:
         const char *name;
         SymbolType type;
+	Type *astType;
         Decl *decl;
         Scope *nestedScope;
 	ScopeType scopeType;
@@ -30,11 +33,12 @@ class Symbol {
         virtual bool isEquivalentType(Symbol *otherSymbol) { return this->type == otherSymbol->type; }
         virtual bool isCompatibleType(Symbol *otherSymbol, Scope *currentContext) { return false; }
 	virtual void describe(const char *indent) {}
+	Type* getAstType() { return astType; }
 };
 
 class InterfaceSymbol : public Symbol {
     public:
-	InterfaceSymbol(Decl *decl) : Symbol(decl) {}
+	InterfaceSymbol(Decl *decl);
 	void describe(const char *indent);     	
 };
 
@@ -44,7 +48,7 @@ class ClassSymbol : public Symbol {
 	List<const char*> *interfaces;
     
     public:
-	ClassSymbol(const char *name, SymbolType type);
+	ClassSymbol(Type *type);
 	ClassSymbol(Decl *decl);  			
 	void describe(const char *indent);     	
 };
@@ -70,7 +74,6 @@ class VariableSymbol : public Symbol {
     public:	  	
 	VariableSymbol(Decl *decl);
 	List<const char*>* getType() { return type; }
-	Type* getDeclType();
 	void describe(const char *indent);     	
 };
 

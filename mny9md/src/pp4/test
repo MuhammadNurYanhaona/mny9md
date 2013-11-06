@@ -1,11 +1,40 @@
 class Rectangle implements Colorable {
-	void colorIt(int color) {}
+
+	int getWidth() { return width; }
+	int getHeight() { return height; }
+
+	int width;
+	int height;
+
+	void colorIt(int color) {
+		int a;
+		double b;
+		for (a = 0; a != b; a++) {
+			Print("rather a busy evening!");
+			{
+				break;
+			}
+		}
+		this.printIt(b);
+	}
+
 	int printIt(Colorable it) {}
 }
 
 interface Colorable {
 	void colorIt(int color);
 	int printIt(Colorable it);
+}
+
+void main() {
+	Rectangle[] rectangle;
+	int h;
+	int w;
+	double area;
+	New (rectangle);
+	NewArray(1.4, Rectangles);
+	rectangle.width;
+	rectangle.getWidth();
 }
 
 

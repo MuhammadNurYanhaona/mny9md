@@ -21,6 +21,7 @@ class Scope {
 	Symbol* insert_symbol(Decl *decl);
 	void insert_symbol(Symbol *symbol);
 	Symbol* lookup(const char *key);
+	Symbol* lookup(const char *key, SymbolType symbolType);
 	Symbol* local_lookup(const char *key);
 	Scope* exit_scope() { Scope* oldScope = this->parent; this->parent = NULL; return oldScope; }
 	void describe(int indent);

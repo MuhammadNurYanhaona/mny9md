@@ -46,6 +46,10 @@ Symbol* Scope::lookup(const char *key) {
 	else return this->parent->lookup(key);
 }
 
+Symbol* lookup(const char *key, SymbolType symbolType) {
+	return NULL;
+}
+
 Symbol* Scope::local_lookup(const char *key) {
 	return symbolTable->Lookup(key);
 }

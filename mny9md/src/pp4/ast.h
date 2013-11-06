@@ -53,7 +53,8 @@ class Node
     Node *GetParent()        { return parent; }
     virtual SymbolType getSymbolType() { return NotApplicable; }
     virtual Scope* ConstructSymbolTable(Scope *currentScope) {return currentScope;}
-    virtual void checkSemantics(Scope *currentScope) {}			
+    virtual void checkSemantics(Scope *currentScope) {}
+    virtual bool isLoop() { return false; }				
 };
    
 
