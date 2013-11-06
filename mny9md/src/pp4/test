@@ -32,7 +32,8 @@ void main() {
 	int w;
 	double area;
 	New (rectangle);
-	NewArray(1.4, Rectangles);
+	a = b;
+	rectangle = NewArray(1.4, Rectangles);
 	rectangle.width;
 	rectangle.getWidth();
 }

@@ -59,6 +59,11 @@ PostfixExpr::PostfixExpr(Expr *l, Operator *o)
     (op=o)->SetParent(this);
 }
 
+void AssignExpr::checkSemantics(Scope *currentScope) {
+	left->checkSemantics(currentScope);
+	right->checkSemantics(currentScope);
+}
+
 void This::checkSemantics(Scope *currentScope) {
 	Scope *classScope = currentScope->getClosestScopeByType(ClassScope);
 	if (classScope == NULL) {
@@ -73,6 +78,20 @@ void This::checkSemantics(Scope *currentScope) {
 ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
     (base=b)->SetParent(this); 
     (subscript=s)->SetParent(this);
+}
+
+void ArrayAccess::checkSemantics(Scope *currentScope) {
+	base->checkSemantics(currentScope);
+	if (base->getExprType()->getVariableType() != Array) {
+		ReportError::BracketsOnNonArray(base);
+	} else {
+		this->exprType = ((ArrayType *) (base->getExprType()))->getElementType();
+	}
+	subscript->checkSemantics(currentScope);
+	Type* subType = subscript->getExprType();
+	if (subType != Type::intType || subType != Type::errorType) {
+		ReportError::SubscriptNotInteger(subscript);
+	}	
 }
      
 FieldAccess::FieldAccess(Expr *b, Identifier *f) 

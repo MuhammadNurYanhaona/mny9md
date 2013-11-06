@@ -1,0 +1,11 @@
+class Student {
+	string name;
+	int age;
+}
+
+void main() {
+	Student[] students;
+	string name;
+	students = NewArray(1.5, Student[]);
+	name = students[0][1.6].getName();
+}

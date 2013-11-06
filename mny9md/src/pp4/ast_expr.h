@@ -158,6 +158,7 @@ class AssignExpr : public CompoundExpr
   public:
     AssignExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "AssignExpr"; }
+    void checkSemantics(Scope *currentScope);
 };
 
 class LValue : public Expr 
@@ -180,6 +181,7 @@ class ArrayAccess : public LValue
     
   public:
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
+    void checkSemantics(Scope *currentScope);
 };
 
 /* Note that field access is used both for qualified names
