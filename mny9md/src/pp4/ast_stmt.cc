@@ -123,10 +123,20 @@ ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) {
 }
 
 void ForStmt::checkSemantics(Scope *currentScope) {
+	init->checkSemantics(currentScope);
+	test->checkSemantics(currentScope);
+	if (!Type::boolType->isCompatibleType(currentScope, test->getExprType())) {
+		ReportError::TestNotBoolean(test);
+	}
+	step->checkSemantics(currentScope);
 	body->checkSemantics(currentScope);
 }
 
 void WhileStmt::checkSemantics(Scope *currentScope) {
+	test->checkSemantics(currentScope);
+	if (!Type::boolType->isCompatibleType(currentScope, test->getExprType())) {
+		ReportError::TestNotBoolean(test);
+	}
 	body->checkSemantics(currentScope);
 }
 
@@ -137,6 +147,10 @@ IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) {
 }
 
 void IfStmt::checkSemantics(Scope *currentScope) {
+	test->checkSemantics(currentScope);
+	if (!Type::boolType->isCompatibleType(currentScope, test->getExprType())) {
+		ReportError::TestNotBoolean(test);
+	}
 	body->checkSemantics(currentScope);
 	if (elseBody != NULL) {
 		elseBody->checkSemantics(currentScope);

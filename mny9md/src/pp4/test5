@@ -1,0 +1,21 @@
+void main() {
+	Student[] students;
+	Intelect aStudent;
+	int i;
+	int j;
+	students = NewArray(10, Student);
+	for (i = 0; aStudent != students[i]; i++) {
+		for (i = 0; i * 13; i++) {}
+		while (i * 13 + 16 / j) {}
+		if (aStudent != null) {
+			Print("A good match");
+		} else {
+			if ( i + 16) 
+				Print(Hello);
+		}		
+	}
+}
+
+class Student implements Intelect {}
+
+interface Intelect {}
