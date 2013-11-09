@@ -14,8 +14,23 @@ void main() {
 				Print(Hello);
 		}		
 	}
+	students[1] = students[0].getAStudent();
+	aStudent = students[0].getAStudent();
+	return;
 }
 
-class Student implements Intelect {}
+class Student implements Intelect {
+	Intelect getAStudent() {
+		return New(Student);
+	}
+	int sayHello() {
+		Print("I don't know");
+		return;
+	}
+}
 
-interface Intelect {}
+interface Intelect {
+	Intelect getAStudent();
+}
+
+class Hello {}

@@ -176,6 +176,23 @@ ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) {
     Assert(e != NULL);
     (expr=e)->SetParent(this);
 }
+
+void ReturnStmt::checkSemantics(Scope *currentScope) {
+	
+	expr->checkSemantics(currentScope);
+	Type *returnType = expr->getExprType();
+
+	Scope *functionScope = currentScope->getClosestScopeByType(FunctionScope);
+	if (functionScope != NULL) {
+		Symbol *symbol = functionScope->lookup(functionScope->getName());
+		if (symbol != NULL && symbol->getType() == Function) {
+			FunctionSymbol *fnSymbol = (FunctionSymbol *) symbol;
+			if (!fnSymbol->getAstType()->isCompatibleType(currentScope, returnType)) {
+				ReportError::ReturnMismatch(this, returnType, fnSymbol->getAstType());
+			}
+		}
+	}	
+}
   
 PrintStmt::PrintStmt(List<Expr*> *a) {    
     Assert(a != NULL);

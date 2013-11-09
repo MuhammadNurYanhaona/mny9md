@@ -114,6 +114,7 @@ class ReturnStmt : public Stmt
   
   public:
     ReturnStmt(yyltype loc, Expr *expr);
+    void checkSemantics(Scope *currentScope);	
 };
 
 class PrintStmt : public Stmt

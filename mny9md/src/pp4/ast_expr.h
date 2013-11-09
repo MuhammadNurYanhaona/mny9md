@@ -36,7 +36,7 @@ class Expr : public Stmt
 		{ if (typeSymbol == NULL) return currentScope->lookup("error");
 		  else return typeSymbol; 
 		}
-    Type* getExprType() { return exprType; } 		
+    virtual Type* getExprType() { return exprType; } 		
 };
 
 /* This node type is used for those places where an expression is optional.
@@ -44,7 +44,9 @@ class Expr : public Stmt
  * NULL. By using a valid, but no-op, node, we save that trouble */
 class EmptyExpr : public Expr
 {
-  public:
+  public:	
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("void"); }	 	
+    Type* getExprType() { return Type::voidType; } 		
 };
 
 class IntConstant : public Expr 
