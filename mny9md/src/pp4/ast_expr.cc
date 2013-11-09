@@ -52,18 +52,57 @@ CompoundExpr::CompoundExpr(Operator *o, Expr *r)
     (right=r)->SetParent(this);
 }
 
-void ArithmeticExpr::checkSemantics(Scope *currentScope) {}
+void ArithmeticExpr::checkSemantics(Scope *currentScope) {
+	
+	left->checkSemantics(currentScope);
+	right->checkSemantics(currentScope);
+	Type *leftType = left->getExprType();
+	Type *rightType = right->getExprType();
+
+	bool err = false;
+	if (!leftType->isCompatibleType(currentScope, rightType)) err = true;
+	if (leftType != Type::intType && leftType != Type::doubleType 
+		&& leftType != Type::errorType) err = true; 
+	if (rightType != Type::intType && rightType != Type::doubleType 
+		&& rightType != Type::errorType) err = true; 
+
+	if (err) ReportError::IncompatibleOperands(op, leftType, rightType);
+	
+	this->exprType = leftType;
+}
 
 PostfixExpr::PostfixExpr(Expr *l, Operator *o)
   : Expr(Join(l->GetLocation(), o->GetLocation())) {
     Assert(l != NULL && o != NULL);
     (left=l)->SetParent(this);
     (op=o)->SetParent(this);
+    exprType = Type::intType;	
 }
 
-void PostfixExpr::checkSemantics(Scope *currentScope) {}
+void PostfixExpr::checkSemantics(Scope *currentScope) {
+	left->checkSemantics(currentScope);
+	Type *leftType = left->getExprType();
+	if (leftType != Type::intType && leftType != Type::errorType) {
+		ReportError::IncompatibleOperand(op, leftType);
+	}
+}
 
-void RelationalExpr::checkSemantics(Scope *currentScope) {}
+void RelationalExpr::checkSemantics(Scope *currentScope) {
+	
+	left->checkSemantics(currentScope);
+	right->checkSemantics(currentScope);
+	Type *leftType = left->getExprType();
+	Type *rightType = right->getExprType();
+
+	bool err = false;
+	if (!leftType->isCompatibleType(currentScope, rightType)) err = true;
+	if (leftType != Type::intType && leftType != Type::doubleType 
+		&& leftType != Type::errorType) err = true; 
+	if (rightType != Type::intType && rightType != Type::doubleType 
+		&& rightType != Type::errorType) err = true; 
+
+	if (err) ReportError::IncompatibleOperands(op, leftType, rightType);
+}
 
 void EqualityExpr::checkSemantics(Scope *currentScope) {
 
@@ -78,12 +117,20 @@ void EqualityExpr::checkSemantics(Scope *currentScope) {
 }
 
 void LogicalExpr::checkSemantics(Scope *currentScope) {
-	left->checkSemantics(currentScope);
+	
 	right->checkSemantics(currentScope);
-	Type *leftType = left->getExprType();
 	Type *rightType = right->getExprType();
-	if (leftType != Type::boolType || rightType != Type::boolType) {
-		ReportError::IncompatibleOperands(op, leftType, rightType);
+	
+	if (left != NULL) {
+		left->checkSemantics(currentScope);
+		Type *leftType = left->getExprType();
+
+		if (!Type::boolType->isCompatibleType(currentScope, leftType) 
+			|| !Type::boolType->isCompatibleType(currentScope, rightType)) {
+			ReportError::IncompatibleOperands(op, leftType, rightType);
+		}
+	} else if (!Type::boolType->isCompatibleType(currentScope, rightType)) {
+		ReportError::IncompatibleOperand(op, rightType);
 	}
 }
 

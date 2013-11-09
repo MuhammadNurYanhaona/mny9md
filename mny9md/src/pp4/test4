@@ -1,0 +1,18 @@
+void main() {
+	string s;
+	int a;
+	int a2;
+	bool b;
+	bool b2;
+	double c;
+	double c2;
+	a = b || c;
+	b2 = b || (a > a2);
+	b++;
+	a++;
+	b = a > c;
+	b = c + c2 > a + a2;
+	b2 = c + c2 > c - c2;
+	c2 = c * s;
+	b2 = !(a > a2) || !s;
+}

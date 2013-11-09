@@ -31,6 +31,7 @@ Type::Type(const char *n) {
 }
 
 bool Type::isCompatibleType(Scope* currentScope, Type* otherType) {
+	if (this == Type:: errorType) return true;
 	if (otherType == Type::errorType) return true;
 	if (this == Type::nullType && otherType->getVariableType() != Basic) return true;
 	return this == otherType;

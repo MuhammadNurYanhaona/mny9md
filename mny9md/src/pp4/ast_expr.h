@@ -131,6 +131,7 @@ class PostfixExpr : public Expr
   public:
     PostfixExpr(Expr *lhs, Operator *op);
     const char *GetPrintNameForNode() { return "PostfixExpr"; }
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("int"); }	
     void checkSemantics(Scope *currentScope);
 };
 
