@@ -8,7 +8,9 @@ class Symbol;
 class Decl;
 
 class Scope {
+
     protected:
+	Scope *base;
 	Scope *parent;
 	ScopeType type;
 	Hashtable<Symbol*> *symbolTable;
@@ -17,18 +19,19 @@ class Scope {
     public:
 	Scope(ScopeType type);
 
-	Scope* enter_scope(Scope *newScope) { newScope->parent = this; return newScope; }
+	Scope* enter_scope(Scope *newScope);
 	Symbol* insert_symbol(Decl *decl);
 	void insert_symbol(Symbol *symbol);
 	Symbol* lookup(const char *key);
 	Symbol* lookup(const char *key, SymbolType symbolType);
 	Symbol* local_lookup(const char *key);
-	Scope* exit_scope() { Scope* oldScope = this->parent; this->parent = NULL; return oldScope; }
+	Scope* exit_scope();
 	void describe(int indent);
 	void setName(const char* n) { name = n; }
 	const char* getName() { return name; }
 	Scope* getClosestScopeByType(ScopeType t);		
  	Iterator<Symbol*> getAllLocalSymbols() { return symbolTable->GetIterator(); }
+	void setBase(Scope *baseScope) { this->base = baseScope; }
 };
 
 #endif

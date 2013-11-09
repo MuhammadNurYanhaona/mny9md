@@ -52,6 +52,8 @@ CompoundExpr::CompoundExpr(Operator *o, Expr *r)
     (right=r)->SetParent(this);
 }
 
+void ArithmeticExpr::checkSemantics(Scope *currentScope) {}
+
 PostfixExpr::PostfixExpr(Expr *l, Operator *o)
   : Expr(Join(l->GetLocation(), o->GetLocation())) {
     Assert(l != NULL && o != NULL);
@@ -59,9 +61,43 @@ PostfixExpr::PostfixExpr(Expr *l, Operator *o)
     (op=o)->SetParent(this);
 }
 
-void AssignExpr::checkSemantics(Scope *currentScope) {
+void PostfixExpr::checkSemantics(Scope *currentScope) {}
+
+void RelationalExpr::checkSemantics(Scope *currentScope) {}
+
+void EqualityExpr::checkSemantics(Scope *currentScope) {
+
 	left->checkSemantics(currentScope);
 	right->checkSemantics(currentScope);
+	Type *leftType = left->getExprType();
+	Type *rightType = right->getExprType();
+
+	if (!leftType->isCompatibleType(currentScope, rightType)) {
+		ReportError::IncompatibleOperands(op, leftType, rightType);
+	}
+}
+
+void LogicalExpr::checkSemantics(Scope *currentScope) {
+	left->checkSemantics(currentScope);
+	right->checkSemantics(currentScope);
+	Type *leftType = left->getExprType();
+	Type *rightType = right->getExprType();
+	if (leftType != Type::boolType || rightType != Type::boolType) {
+		ReportError::IncompatibleOperands(op, leftType, rightType);
+	}
+}
+
+void AssignExpr::checkSemantics(Scope *currentScope) {
+
+	left->checkSemantics(currentScope);
+	right->checkSemantics(currentScope);
+	typeSymbol = left->getTypeSymbol(currentScope);
+	exprType = left->getExprType();
+
+	Type *rightType = right->getExprType();
+	if (!exprType->isCompatibleType(currentScope, rightType)) {
+		ReportError::IncompatibleOperands(op, exprType, rightType);
+	}
 }
 
 void This::checkSemantics(Scope *currentScope) {
@@ -86,10 +122,11 @@ void ArrayAccess::checkSemantics(Scope *currentScope) {
 		ReportError::BracketsOnNonArray(base);
 	} else {
 		this->exprType = ((ArrayType *) (base->getExprType()))->getElementType();
+		this->typeSymbol = base->getTypeSymbol(currentScope);
 	}
 	subscript->checkSemantics(currentScope);
 	Type* subType = subscript->getExprType();
-	if (subType != Type::intType || subType != Type::errorType) {
+	if (subType != Type::intType && subType != Type::errorType) {
 		ReportError::SubscriptNotInteger(subscript);
 	}	
 }
@@ -165,7 +202,6 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
 }
 
 void Call::checkSemantics(Scope *currentScope) {
-	
 	bool validateFunction = true;
 	Scope *functionScope = currentScope;
 	
@@ -227,7 +263,8 @@ NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) {
 }
 
 void NewExpr::checkSemantics(Scope *currentScope) {
-	Symbol* symbol = currentScope->lookup(cType->getName());
+	Scope* globalScope = currentScope->getClosestScopeByType(GlobalScope);
+	Symbol* symbol = globalScope->lookup(cType->getName());
 	if (symbol == NULL || symbol->getType() != Class) {
 		ReportError::IdentifierNotDeclared(cType->getIdentifier(), LookingForType);
 	} else {
@@ -246,7 +283,7 @@ void NewArrayExpr::checkSemantics(Scope *currentScope) {
     
     size->checkSemantics(currentScope);
     Type* type = size->getExprType();
-    if (type != Type::intType || type != Type::errorType) {
+    if (type != Type::intType && type != Type::errorType) {
 	ReportError::NewArraySizeNotInteger(size);
     }
 
@@ -254,7 +291,8 @@ void NewArrayExpr::checkSemantics(Scope *currentScope) {
     while (coreType->getVariableType() == Array) {
 	coreType = ((ArrayType *) coreType)->getElementType();
     }
-    Symbol* symbol = currentScope->lookup(coreType->getName());
+    Scope* globalScope = currentScope->getClosestScopeByType(GlobalScope);	
+    Symbol* symbol = globalScope->lookup(coreType->getName());
     if (symbol == NULL) {
 	ReportError::IdentifierNotDeclared(((NamedType *) coreType)->getIdentifier(), LookingForType);
     } else {

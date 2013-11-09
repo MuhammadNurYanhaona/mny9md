@@ -30,6 +30,7 @@ void Program::Check() {
     // construct symbol tables for all classes, interfaces, and functions	
     Scope *globalScope = new Scope(GlobalScope);
     ConstructSymbolTable(globalScope);
+    linkClassScopesByInheritence(globalScope);	
     
     // then start semantic validation using an in-order traversal	
     checkSemantics(globalScope);   	
@@ -61,6 +62,23 @@ Scope* Program::ConstructSymbolTable(Scope *currentScope) {
 	}
     } 	
     return currentScope;
+}
+
+void Program::linkClassScopesByInheritence(Scope *currentScope) {
+	Iterator<Symbol*> symbols = currentScope->getAllLocalSymbols();
+	Symbol *symbol;
+	while ((symbol = symbols.GetNextValue()) != NULL) {
+		if (symbol->getType() == Class && symbol->getDecl() != NULL) {
+			ClassDecl *decl = (ClassDecl*) symbol->getDecl();
+			NamedType *base = decl->getExtends();
+			if (base != NULL) {
+				Symbol *baseSymbol = currentScope->lookup(base->getName());
+				if (baseSymbol != NULL) {
+					symbol->getNestedScope()->setBase(baseSymbol->getNestedScope());
+				}
+			}
+		}
+	}
 }
 
 void Program::checkSemantics(Scope *currentScope) {

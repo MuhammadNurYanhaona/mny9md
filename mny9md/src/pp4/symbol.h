@@ -49,7 +49,9 @@ class ClassSymbol : public Symbol {
     
     public:
 	ClassSymbol(Type *type);
-	ClassSymbol(Decl *decl);  			
+	ClassSymbol(Decl *decl);
+	const char* getSuperClassName() { return base; }
+	List<const char*>* getInterfaces() { return interfaces; }  			
 	void describe(const char *indent);     	
 };
 

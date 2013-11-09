@@ -30,12 +30,16 @@ void main() {
 	Rectangle[] rectangle;
 	int h;
 	int w;
+	bool hi;
 	double area;
 	New (rectangle);
 	a = b;
-	rectangle = NewArray(1.4, Rectangles);
+	rectangle = NewArray(1.4, Rectangle);
 	rectangle.width;
 	rectangle.getWidth();
+	x = h || rectangle;
+	hi = hi && true;
+	hi = rectangle == null;
 }
 
 

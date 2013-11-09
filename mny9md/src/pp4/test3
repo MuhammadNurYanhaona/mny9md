@@ -1,0 +1,31 @@
+void main() {
+	Instrument inst;
+	Phone ph;
+	BanglaPhone bp;
+	inst = getAPhone();
+	inst = ph;
+	ph = getAnInstrument();
+	ph = bp;
+	bp = ph;
+	inst = bp;
+	bp = inst;	
+}
+
+class Phone implements Colorable, Instrument {
+	string number;
+}
+
+interface Instrument {
+	double calculateCost();
+}
+
+Phone getAPhone() {
+	return New (Phone);
+} 
+
+Instrument getAnInstrument() {
+	return New (Phone);
+}
+
+class BanglaPhone extends Phone {
+}

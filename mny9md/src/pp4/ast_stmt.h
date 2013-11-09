@@ -31,6 +31,7 @@ class Program : public Node
      Program(List<Decl*> *declList);
      void Check();
      Scope* ConstructSymbolTable(Scope *currentScope);
+     void linkClassScopesByInheritence(Scope *currentScope);	
      void checkSemantics(Scope *currentScope);	
 };
 

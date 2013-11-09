@@ -36,7 +36,8 @@ class Type : public Node
     virtual bool IsEquivalentTo(Type *other) { return this == other; }
     virtual SymbolType getSymbolType() { return Class; }
     virtual const char* getName() { return typeName; }
-    virtual VariableType getVariableType() { return Basic; }			
+    virtual VariableType getVariableType() { return Basic; }
+    virtual bool isCompatibleType(Scope* currentScope, Type* otherType);				
 };
 
 class NamedType : public Type 
@@ -51,6 +52,7 @@ class NamedType : public Type
     Identifier* getIdentifier() { return id; }		
     VariableType getVariableType() { return Object; }			
     void PrintToStream(std::ostream& out) { out << id; }
+    bool isCompatibleType(Scope* currentScope, Type* otherType);				
 };
 
 class ArrayType : public Type 
@@ -66,6 +68,7 @@ class ArrayType : public Type
     Type* getElementType() { return elemType; }
     const char* getName() { return desc.c_str(); }		   
     void PrintToStream(std::ostream& out) { out << elemType << "[]"; }
+    bool isCompatibleType(Scope* currentScope, Type* otherType);				
 };
 
  

@@ -1,11 +1,21 @@
-class Student {
+class Person {
+	string localName;
+	int getName() {}
+}
+
+class Student extends Person {
 	string name;
 	int age;
+	void doStuff() {
+		name = localName;	
+	}
 }
 
 void main() {
 	Student[] students;
 	string name;
-	students = NewArray(1.5, Student[]);
-	name = students[0][1.6].getName();
+	students = NewArray(1, Student[]);
+	name = students[0.1].getName();
+	students[1].localName;
+	i = students[1].locale;
 }

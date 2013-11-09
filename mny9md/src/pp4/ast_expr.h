@@ -120,6 +120,7 @@ class ArithmeticExpr : public CompoundExpr
   public:
     ArithmeticExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
+    void checkSemantics(Scope *currentScope);
 };
 
 class PostfixExpr : public Expr
@@ -130,27 +131,34 @@ class PostfixExpr : public Expr
   public:
     PostfixExpr(Expr *lhs, Operator *op);
     const char *GetPrintNameForNode() { return "PostfixExpr"; }
+    void checkSemantics(Scope *currentScope);
 };
 
 class RelationalExpr : public CompoundExpr 
 {
   public:
-    RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
+    RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) { exprType = Type::boolType; }
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("bool"); }	
+    void checkSemantics(Scope *currentScope);
 };
 
 class EqualityExpr : public CompoundExpr 
 {
   public:
-    EqualityExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
+    EqualityExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) { exprType = Type::boolType; }
     const char *GetPrintNameForNode() { return "EqualityExpr"; }
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("bool"); }	
+    void checkSemantics(Scope *currentScope);
 };
 
 class LogicalExpr : public CompoundExpr 
 {
   public:
-    LogicalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
-    LogicalExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
+    LogicalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) { exprType = Type::boolType; }
+    LogicalExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) { exprType = Type::boolType; }
     const char *GetPrintNameForNode() { return "LogicalExpr"; }
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("bool"); }	
+    void checkSemantics(Scope *currentScope);
 };
 
 class AssignExpr : public CompoundExpr 
@@ -241,13 +249,15 @@ class NewArrayExpr : public Expr
 class ReadIntegerExpr : public Expr
 {
   public:
-    ReadIntegerExpr(yyltype loc) : Expr(loc) {}
+    ReadIntegerExpr(yyltype loc) : Expr(loc) { exprType = Type::intType; }
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("int"); }	 	
 };
 
 class ReadLineExpr : public Expr
 {
   public:
-    ReadLineExpr(yyltype loc) : Expr (loc) {}
+    ReadLineExpr(yyltype loc) : Expr (loc) { exprType = Type::stringType; }
+    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("string"); }
 };
 
     

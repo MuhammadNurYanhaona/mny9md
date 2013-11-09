@@ -9,6 +9,18 @@ Scope::Scope(ScopeType type) {
         this->parent = NULL;
         symbolTable = new Hashtable<Symbol*>;
 	this->name = NULL;
+	this->base = NULL;
+}
+
+Scope* Scope::enter_scope(Scope *newScope) {
+	newScope->parent = this; 
+	return newScope; 
+}
+
+Scope* Scope::exit_scope() { 
+	Scope* oldScope = this->parent; 
+	this->parent = NULL; 
+	return oldScope; 
 }
 
 void Scope::insert_symbol(Symbol *symbol) {
@@ -40,7 +52,7 @@ Symbol* Scope::insert_symbol(Decl *decl) {
 }
 
 Symbol* Scope::lookup(const char *key) {
-	Symbol *symbol = symbolTable->Lookup(key);
+	Symbol *symbol = this->local_lookup(key);
 	if (symbol != NULL) return symbol;
 	if (this->parent == NULL) return NULL;
 	else return this->parent->lookup(key);
@@ -51,7 +63,11 @@ Symbol* lookup(const char *key, SymbolType symbolType) {
 }
 
 Symbol* Scope::local_lookup(const char *key) {
-	return symbolTable->Lookup(key);
+	//return symbolTable->Lookup(key);
+	Symbol *symbol = symbolTable->Lookup(key);
+	if (symbol != NULL) return symbol;
+	if (this->base == NULL) return NULL;
+	else return this->base->local_lookup(key);
 }
 
 void Scope::describe(int indent) {
