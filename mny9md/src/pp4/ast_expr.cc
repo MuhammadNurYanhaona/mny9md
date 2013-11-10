@@ -207,7 +207,7 @@ void FieldAccess::checkSemantics(Scope *currentScope) {
 			// base is a derived variable so retrieve and check type access 
 			if (baseType->getVariableType() == Array) {
 				// trying to access elements of an array as fields
-				ReportError::InaccessibleField(field, baseType);
+				ReportError::FieldNotFoundInBase(field, baseType);
 			} else {
 				// retrieve the scope for the type
 				Symbol *typeSymbol = currentScope->lookup(baseType->getName());
@@ -264,8 +264,15 @@ void Call::checkSemantics(Scope *currentScope) {
 		} else if (baseSymbol->getType() == Variable) {
 			// base is a derived variable so retrieve and check type access 
 			if (baseType->getVariableType() == Array) {
-				// trying to access elements of an array as fields
-				ReportError::InaccessibleField(field, baseType);
+				if (strcmp("length", field->getName()) == 0) {
+					if (actuals->NumElements() != 0) {
+						ReportError::NumArgsMismatch(field, 0, actuals->NumElements());
+					}
+					exprType = Type::intType;
+					typeSymbol = currentScope->lookup("int");
+				} else {
+					ReportError::IdentifierNotDeclared(field, LookingForFunction);
+				}
 				validateFunction = false;
 			} else {
 				// retrieve the scope for the type

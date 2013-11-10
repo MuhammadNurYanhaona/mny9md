@@ -1,0 +1,10 @@
+void main() {
+	int[][] samples2D;
+	samples2D = NewArray(10, int[]);
+	samples2D[0] = NewArray(10, int);
+	samples2D.length();
+	samples2D.length(10);
+	if (samples2D.length() > samples2D[0].length()) {
+		Print(samples2D[0][0].length(), samples2D[0].length);
+	}
+}
