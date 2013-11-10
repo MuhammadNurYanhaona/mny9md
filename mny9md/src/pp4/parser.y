@@ -270,7 +270,7 @@ ForStmt	  : T_For '(' OptionalExpr ';' Expr ';' OptionalExpr ')' Stmt
 					{ $$ = new ForStmt($3, $5, $7, $9); }
 ;
 
-ReturnStmt  : T_Return OptionalExpr ';' { $$ = new ReturnStmt(@1, $2); }
+ReturnStmt  : T_Return OptionalExpr ';' { $$ = new ReturnStmt(@2, $2); }
 ;
 
 BreakStmt  : T_Break ';'	{ $$ = new BreakStmt(@1); }
@@ -331,10 +331,10 @@ Expr	: LValueWithPostfix '=' Expr %prec T_Assignment
 	| Expr T_And Expr			{ $$ = new LogicalExpr($1, new Operator(@2, "&&"), $3); }
 	| Expr T_Or Expr			{ $$ = new LogicalExpr($1, new Operator(@2, "||"), $3); }
 	| '!' Expr				{ $$ = new LogicalExpr(new Operator(@1, "!"), $2); }
-	| T_ReadInteger '(' ')'			{ $$ = new ReadIntegerExpr(@1); }
-	| T_ReadLine '(' ')'			{ $$ = new ReadLineExpr(@1); }
-	| T_New '(' T_Identifier ')'		{ $$ = new NewExpr(@1, new NamedType(new Identifier(@3, $3))); }
-	| T_NewArray '(' Expr ',' Type ')'	{ $$ = new NewArrayExpr(@1, $3, $5); }
+	| T_ReadInteger '(' ')'			{ $$ = new ReadIntegerExpr(Join(@1, @3)); }
+	| T_ReadLine '(' ')'			{ $$ = new ReadLineExpr(Join(@1, @3)); }
+	| T_New '(' T_Identifier ')'		{ $$ = new NewExpr(Join(@1, @4), new NamedType(new Identifier(@3, $3))); }
+	| T_NewArray '(' Expr ',' Type ')'	{ $$ = new NewArrayExpr(Join(@1, @6), $3, $5); }
 	| Expr T_Increment			{ $$ = new PostfixExpr($1, new Operator(@2, "++")); }
 	| Expr T_Decrement			{ $$ = new PostfixExpr($1, new Operator(@2, "--")); }
 ;
@@ -346,11 +346,11 @@ LValueWithPostfix	: LValue T_Increment	{ $$ = new PostfixExpr($1, new Operator(@
 
 LValue	: T_Identifier				{ $$ = new FieldAccess(NULL, new Identifier(@1, $1)); }
 	| Expr '.' T_Identifier			{ $$ = new FieldAccess($1, new Identifier(@3, $3)); }
-	| Expr '[' Expr ']' %prec T_Dims	{ $$ = new ArrayAccess(@1, $1, $3); }
+	| Expr '[' Expr ']' %prec T_Dims	{ $$ = new ArrayAccess(Join(@1, @4), $1, $3); }
 ;
 
-Call	: T_Identifier '(' Actuals ')'		{ $$ = new Call(@1, NULL, new Identifier(@1, $1), $3); }
-	| Expr '.' T_Identifier '(' Actuals ')' { $$ = new Call(@1, $1, new Identifier(@3, $3), $5); } 
+Call	: T_Identifier '(' Actuals ')'		{ $$ = new Call(Join(@1, @4), NULL, new Identifier(@1, $1), $3); }
+	| Expr '.' T_Identifier '(' Actuals ')' { $$ = new Call(Join(@1, @6), $1, new Identifier(@3, $3), $5); } 
 ;
 
 Actuals	: ExprList	{ $$ = $1; }
