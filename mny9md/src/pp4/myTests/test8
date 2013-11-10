@@ -1,0 +1,31 @@
+class Person {
+	string name;
+	bool isLocal;
+	string getName() { return isLocal; }
+}
+
+class Student extends Person {
+	string school;
+	Student me;
+	Person realMe;
+	void printSomething() {
+		Print(me.school);
+		Print(me.name);
+		Print(name);
+		Print(realMe.name);
+	}
+}
+
+class GradStudent extends Person {
+	Person mePerson;
+	void printDesc() {
+		Print(mePerson.name, mePerson.isLocal);
+		Print(name, this.isLocal);
+	}	
+}
+
+void main() {
+	GradStudent grad;
+	Print(grad.name);
+	Print(grad.getName());
+}

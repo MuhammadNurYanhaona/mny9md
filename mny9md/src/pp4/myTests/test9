@@ -1,0 +1,25 @@
+class Student implements Intelect {
+	string name;
+	string getName() {return this.name;}
+	void makeAComment() {
+		Print("Why do I have to do this?");
+		return;
+	}
+}
+
+class GradStudent extends Student {
+	string school;
+}
+
+interface Intelect {
+	void saySomethingNice();
+	void makeAComment();
+}
+
+void main() {
+	GradStudent me;
+	string n;
+	me.makeAComment();
+	n = me.getName();
+	me.saySomethingNice();
+}

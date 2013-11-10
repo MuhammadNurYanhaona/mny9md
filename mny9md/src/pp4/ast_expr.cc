@@ -264,9 +264,11 @@ void FieldAccess::checkSemantics(Scope *currentScope) {
 			this->typeSymbol = symbol;
 			this->exprType = symbol->getAstType();
 			// check if access to the field is possible from the base
-			if (baseType != NULL && 
-				fieldAccessScope != currentScope->getClosestScopeByType(ClassScope)) {
-				ReportError::InaccessibleField(field, baseType);
+			if (baseType != NULL) {
+				Scope *closestClass = currentScope->getClosestScopeByType(ClassScope);
+				if (closestClass == NULL || !closestClass->isCompatibleClassScope(fieldAccessScope)) {
+					ReportError::InaccessibleField(field, baseType);
+				}
 			}
 		}
 	}

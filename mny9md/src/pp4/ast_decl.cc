@@ -105,17 +105,20 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 			Symbol* inheritedMethod;
 			bool matchFound = true;
 			while ((inheritedMethod = inheritedMethods.GetNextValue()) != NULL) {
-				matchFound = false;
+				bool currentMatchFound = false;
 				for (int i = 0; i < members->NumElements(); i++) {
 					Decl *decl = members->Nth(i);
 					if (decl->getSymbolType() != Function) continue;
 					FnDecl *fnDecl = (FnDecl*) decl;
 					if (strcmp(fnDecl->getName(), inheritedMethod->getName()) == 0) {
-						matchFound = true;
+						currentMatchFound = true;
 						break;
 					} 
 				}
-				if (!matchFound) break;
+				if (!currentMatchFound) {
+					matchFound = false;
+					classScope->insert_symbol(inheritedMethod);
+				}
 			}
 			if (!matchFound) {
 				ReportError::InterfaceNotImplemented(this, iName);

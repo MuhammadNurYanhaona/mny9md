@@ -32,6 +32,7 @@ class Scope {
 	Scope* getClosestScopeByType(ScopeType t);		
  	Iterator<Symbol*> getAllLocalSymbols() { return symbolTable->GetIterator(); }
 	void setBase(Scope *baseScope) { this->base = baseScope; }
+	bool isCompatibleClassScope(Scope *otherScope);
 };
 
 #endif

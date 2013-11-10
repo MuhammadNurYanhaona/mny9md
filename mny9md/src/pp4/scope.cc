@@ -92,3 +92,12 @@ Scope* Scope::getClosestScopeByType(ScopeType t) {
 	else return parent->getClosestScopeByType(t);
 }
 
+bool Scope::isCompatibleClassScope(Scope *otherScope) {
+	if (this == otherScope) return true;
+	Scope *superScope = this->base;
+	while (superScope != NULL) {
+		if (superScope == otherScope) return true;
+		superScope = superScope->base;
+	}
+	return false;	
+}

@@ -1,3 +1,7 @@
+Due to the difference in my pp3 implementation from the one that generated the sample outputs,
+I had some error messages printed in different order in pp4 too. The reason is again explained
+below. This time the only sample file that has a difference is 'bad11.decaf.' 
+
 Note that the outputs produced by my semantic analyzer for 'bad4.decaf' and 'bad6.decaf'
 slightly differs from the sample outputs provided with the pp3.zip. This is because my
 semantic analyzer reports errors in-order, as they appear in the code, instead of ordering
