@@ -275,6 +275,9 @@ void Call::checkSemantics(Scope *currentScope) {
 		}
 	}
 
+	bool validateParameters = true;
+	FunctionSymbol *functionSymbol = NULL;
+
 	if (validateFunction) {
 		Symbol *symbol = functionScope->lookup(field->getName());
 		if (symbol == NULL) {
@@ -284,10 +287,11 @@ void Call::checkSemantics(Scope *currentScope) {
 			functionScope->insert_symbol(new ErrorSymbol(field->getName()));
 		} else if (symbol->getType() != Error) {
 			// match actual and formal  parameter counts
-			FunctionSymbol *functionSymbol = (FunctionSymbol *) symbol;
+			functionSymbol = (FunctionSymbol *) symbol;
 			int formalParams = functionSymbol->getParameterCount();
 			int actualParams = actuals->NumElements();
 			if (formalParams != actualParams) {
+				validateParameters = false;
 				ReportError::NumArgsMismatch(field, formalParams, actualParams);
 			}
 			// set the type of the call expression
@@ -295,12 +299,24 @@ void Call::checkSemantics(Scope *currentScope) {
 			exprType = functionSymbol->getAstType();	
 		}
 	}
+
 	// do recursive validation of each parameter
-	List<Symbol*> *actualTypes = new List<Symbol*>;
-	for (int i = 0; i < actuals->NumElements(); i++) {
-		Expr *param = actuals->Nth(i);
-		param->checkSemantics(currentScope);
-		actualTypes->Append(param->getTypeSymbol(currentScope));	
+	if (functionSymbol != NULL && validateParameters) {
+		Decl *decl = functionSymbol->getDecl();
+		FnDecl *fnDecl = dynamic_cast<FnDecl *>(decl);
+		if (fnDecl != NULL) {
+			List<VarDecl*>* formals = fnDecl->getFormals();
+			for (int i = 0; i < actuals->NumElements(); i++) {
+				Expr *param = actuals->Nth(i);
+				param->checkSemantics(currentScope);
+				VarDecl *var = formals->Nth(i);
+				Type *formalType = var->getType();
+				Type *actualType = param->getExprType();
+				if (!formalType->isCompatibleType(currentScope, actualType)) {
+					ReportError::ArgMismatch(param, i + 1, actualType, formalType);	
+				}
+			}
+		}
 	}
 } 
 

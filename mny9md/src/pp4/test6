@@ -1,0 +1,19 @@
+class Person {
+	void printInfo() {}
+	int getGrade(string course) {}
+}
+
+class Student extends Person {
+	void setInfo(string name, string[] courseHistory, int [] grades) {}
+}
+
+void main () {
+	Student student;
+	string[] hist;
+	int[] gr;
+	student.setInfo(ReadLine(), hist, gr);
+	student.printInfo(hist[0]);
+	gr[0] = student.getGrade(hist[0]);
+	student.setInfo(12, hist[0], gr);
+	Print(true || false, student, hist[0], gr[0], gr);
+}

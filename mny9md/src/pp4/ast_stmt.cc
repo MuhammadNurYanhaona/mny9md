@@ -199,6 +199,19 @@ PrintStmt::PrintStmt(List<Expr*> *a) {
     (args=a)->SetParentAll(this);
 }
 
+void PrintStmt::checkSemantics(Scope *currentScope) {
+	for (int i = 0; i < args->NumElements(); i++) {
+		Expr* arg = args->Nth(i);
+		arg->checkSemantics(currentScope);
+		Type *argType = arg->getExprType();
+		if (!(Type::stringType->isCompatibleType(currentScope, argType) 
+				|| Type::boolType->isCompatibleType(currentScope, argType) 
+				|| Type::intType->isCompatibleType(currentScope, argType))) {
+			ReportError::PrintArgMismatch(arg, i + 1, argType);
+		}
+	}
+}
+
 CaseStmt::CaseStmt(Stmt *v, List<Stmt*> *s) {
    Assert(v != NULL && s != NULL);
    (value = v)->SetParent(this);

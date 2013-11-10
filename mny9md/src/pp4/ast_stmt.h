@@ -124,6 +124,7 @@ class PrintStmt : public Stmt
     
   public:
     PrintStmt(List<Expr*> *arguments);
+    void checkSemantics(Scope *currentScope);	
 };
 
 class CaseStmt : public Stmt
