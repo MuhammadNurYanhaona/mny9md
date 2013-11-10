@@ -133,34 +133,30 @@ class PostfixExpr : public Expr
   public:
     PostfixExpr(Expr *lhs, Operator *op);
     const char *GetPrintNameForNode() { return "PostfixExpr"; }
-    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("int"); }	
     void checkSemantics(Scope *currentScope);
 };
 
 class RelationalExpr : public CompoundExpr 
 {
   public:
-    RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) { exprType = Type::boolType; }
-    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("bool"); }	
+    RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     void checkSemantics(Scope *currentScope);
 };
 
 class EqualityExpr : public CompoundExpr 
 {
   public:
-    EqualityExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) { exprType = Type::boolType; }
+    EqualityExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "EqualityExpr"; }
-    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("bool"); }	
     void checkSemantics(Scope *currentScope);
 };
 
 class LogicalExpr : public CompoundExpr 
 {
   public:
-    LogicalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) { exprType = Type::boolType; }
-    LogicalExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) { exprType = Type::boolType; }
+    LogicalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
+    LogicalExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     const char *GetPrintNameForNode() { return "LogicalExpr"; }
-    Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("bool"); }	
     void checkSemantics(Scope *currentScope);
 };
 

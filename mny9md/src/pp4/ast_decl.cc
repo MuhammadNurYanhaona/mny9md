@@ -113,8 +113,7 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 				if (!matchFound) break;
 			}
 			if (!matchFound) {
-				NamedType *interfaceType = new NamedType(interface->getDecl()->getIdentifier());
-				ReportError::InterfaceNotImplemented(this, interfaceType);
+				ReportError::InterfaceNotImplemented(this, iName);
 			}	
 			currentScope = currentScope->enter_scope(interfaceScope);
 		} else {
