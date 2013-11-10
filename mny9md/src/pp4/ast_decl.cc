@@ -20,6 +20,8 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
 
 void VarDecl::checkSemantics(Scope *currentScope) {
 
+	Scope *globalScope = currentScope->getClosestScopeByType(GlobalScope);
+
 	// check if it is a duplicate declaration
 	Symbol *symbol = currentScope->local_lookup(this->getName());
 	if (symbol->getDecl() != this) {
@@ -32,8 +34,11 @@ void VarDecl::checkSemantics(Scope *currentScope) {
 		coreType = ((ArrayType *) coreType)->getElementType();
  	
 	// check for existence of the type
+	const char* coreTypeName = coreType->getName();
 	if (coreType->getVariableType() == Object 
-			&& currentScope->lookup(coreType->getName()) == NULL) {
+			&& (globalScope->lookup(coreTypeName) == NULL 
+				|| (globalScope->lookup(coreTypeName)->getType() != Class
+					&& globalScope->lookup(coreTypeName)->getType() != Interface))) {
 		ReportError::IdentifierNotDeclared(
 			((NamedType *) coreType)->getIdentifier(), LookingForType);
 
@@ -83,7 +88,7 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 	// check the validity of the superclass, if present
 	if (this->extends != NULL) {
 		Symbol* base = currentScope->lookup(this->extends->getName());
-		if (base != NULL) {
+		if (base != NULL && base->getType() == Class) {
 			currentScope = currentScope->enter_scope(base->getNestedScope());
 		} else {
 			ReportError::IdentifierNotDeclared(this->extends->getIdentifier(), LookingForClass);
@@ -94,7 +99,7 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 	for (int i = 0; i < implements->NumElements(); i++) {
 		NamedType* iName = implements->Nth(i);
 		Symbol* interface = currentScope->lookup(iName->getName());
-		if (interface != NULL) {
+		if (interface != NULL && interface->getType() == Interface) {
 			Scope* interfaceScope = interface->getNestedScope();
 			Iterator<Symbol*> inheritedMethods = interfaceScope->getAllLocalSymbols();
 			Symbol* inheritedMethod;

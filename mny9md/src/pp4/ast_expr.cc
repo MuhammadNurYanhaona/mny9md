@@ -55,23 +55,29 @@ CompoundExpr::CompoundExpr(Operator *o, Expr *r)
 void ArithmeticExpr::checkSemantics(Scope *currentScope) {
 	
 	Scope *globalScope = currentScope->getClosestScopeByType(GlobalScope);
-	left->checkSemantics(currentScope);
+	Type *leftType = NULL;
+	if (left != NULL) {
+		left->checkSemantics(currentScope);
+		leftType = left->getExprType();
+	}
 	right->checkSemantics(currentScope);
-	Type *leftType = left->getExprType();
 	Type *rightType = right->getExprType();
 
 	bool err = false;
-	if (!leftType->isCompatibleType(currentScope, rightType)) err = true;
-	if (leftType != Type::intType && leftType != Type::doubleType 
-		&& leftType != Type::errorType) err = true; 
+	if (left != NULL) {
+		if (!leftType->isCompatibleType(currentScope, rightType)) err = true;
+		else if (leftType != Type::intType && leftType != Type::doubleType 
+			&& leftType != Type::errorType) err = true;
+	} 
 	if (rightType != Type::intType && rightType != Type::doubleType 
 		&& rightType != Type::errorType) err = true; 
 
 	if (err) { 
-		ReportError::IncompatibleOperands(op, leftType, rightType);
+		if (left != NULL) ReportError::IncompatibleOperands(op, leftType, rightType);
+		else ReportError::IncompatibleOperand(op, rightType);;	
 	} else {
-		this->exprType = leftType;
-		this->typeSymbol = globalScope->lookup(leftType->getName());
+		this->exprType = rightType;
+		this->typeSymbol = globalScope->lookup(rightType->getName());
 	}
 }
 
@@ -146,6 +152,11 @@ void LogicalExpr::checkSemantics(Scope *currentScope) {
 		if (!Type::boolType->isCompatibleType(currentScope, leftType) 
 			|| !Type::boolType->isCompatibleType(currentScope, rightType)) {
 			ReportError::IncompatibleOperands(op, leftType, rightType);
+		}
+		// if the right is valid then allow further type-checking in upper level
+		if (Type::boolType == rightType) {
+			this->exprType = Type::boolType;
+			this->typeSymbol = globalScope->lookup(exprType->getName());
 		}
 	} else if (!Type::boolType->isCompatibleType(currentScope, rightType)) {
 		ReportError::IncompatibleOperand(op, rightType);
@@ -241,14 +252,14 @@ void FieldAccess::checkSemantics(Scope *currentScope) {
 	// if there is no error in the base (or there is no base) then validate this field access
 	if (fieldAccessScope != NULL && validateField) {
 		Symbol *symbol = fieldAccessScope->lookup(field->getName());
-		if (symbol == NULL) {
+		if (symbol == NULL || (symbol->getType() != Variable && symbol->getType() != Error)) {
 			if (baseType == NULL) {
 				ReportError::IdentifierNotDeclared(field, LookingForVariable);
 			} else {
 				ReportError::FieldNotFoundInBase(field, baseType);
 			}
 			currentScope->insert_symbol(new ErrorSymbol(field->getName()));	
-		} else {
+		} else if (symbol->getType() != Error) {
 			// store the symbol and type for later expression validation
 			this->typeSymbol = symbol;
 			this->exprType = symbol->getAstType();
@@ -316,7 +327,7 @@ void Call::checkSemantics(Scope *currentScope) {
 
 	if (validateFunction) {
 		Symbol *symbol = functionScope->lookup(field->getName());
-		if (symbol == NULL) {
+		if (symbol == NULL || (symbol->getType() != Function && symbol->getType() != Error)) {
 			// function is not found
 			if (baseType == NULL) {
 				ReportError::IdentifierNotDeclared(field, LookingForFunction);
@@ -348,7 +359,6 @@ void Call::checkSemantics(Scope *currentScope) {
 			List<VarDecl*>* formals = fnDecl->getFormals();
 			for (int i = 0; i < actuals->NumElements(); i++) {
 				Expr *param = actuals->Nth(i);
-				//param->checkSemantics(currentScope);
 				VarDecl *var = formals->Nth(i);
 				Type *formalType = var->getType();
 				Type *actualType = param->getExprType();
@@ -396,8 +406,8 @@ void NewArrayExpr::checkSemantics(Scope *currentScope) {
     }
     Scope* globalScope = currentScope->getClosestScopeByType(GlobalScope);	
     Symbol* symbol = globalScope->lookup(coreType->getName());
-    if (symbol == NULL) {
-	ReportError::IdentifierNotDeclared(((NamedType *) coreType)->getIdentifier(), LookingForClass);
+    if (symbol == NULL || symbol->getType() != Class) {
+	ReportError::IdentifierNotDeclared(((NamedType *) coreType)->getIdentifier(), LookingForType);
     } else {
 	this->typeSymbol = symbol;
 	this->exprType = new ArrayType(*location, elemType);
