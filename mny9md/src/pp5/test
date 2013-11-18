@@ -1,0 +1,26 @@
+int globe;
+
+void main() {
+
+	int a;
+	int c;
+	bool b;
+	bool b2;
+	string s;
+	
+	b != b2;
+
+	b2 = !(a > c);
+		
+	c > a++;
+	a < c;
+	(a >= c) || (a <= c);
+		
+
+	a + 100;
+	-a;
+	s == "Hello, world";
+	a != a;
+
+	Print(s, a, b);
+}
