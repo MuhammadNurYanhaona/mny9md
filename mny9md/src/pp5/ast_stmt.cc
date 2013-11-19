@@ -99,7 +99,7 @@ void Program::Emit() {
      *      polymorphism in the node classes.
      */
 
-	SetDebugForKey("tac", true);
+	//SetDebugForKey("tac", true);
 	CodeGenerator *codegen = new CodeGenerator();
 
 	// allocate locations for the global variables
@@ -191,12 +191,44 @@ void ForStmt::checkSemantics(Scope *currentScope) {
 	body->checkSemantics(currentScope);
 }
 
+void ForStmt::Emit(CodeGenerator *codegen) {
+	init->generateCode(codegen);
+	int forBeginNo = globalStack->getNextLabelNum();
+	int forEndNo = globalStack->getNextLabelNum();
+	char begin[20], end[20];
+	sprintf(begin, "loopBegin_%d", forBeginNo);
+	sprintf(end, "loopEnd_%d", forEndNo);
+	codegen->GenLabel(begin);
+	globalStack->setLoopMarker(forEndNo);
+	Location *t = test->generateCode(codegen);
+	codegen->GenIfZ(t, end);
+	body->Emit(codegen);
+	step->generateCode(codegen);
+	codegen->GenGoto(begin);
+	codegen->GenLabel(end);
+}
+
 void WhileStmt::checkSemantics(Scope *currentScope) {
 	test->checkSemantics(currentScope);
 	if (!Type::boolType->isCompatibleType(currentScope, test->getExprType())) {
 		ReportError::TestNotBoolean(test);
 	}
 	body->checkSemantics(currentScope);
+}
+
+void WhileStmt::Emit(CodeGenerator *codegen) {
+	int whileBeginNo = globalStack->getNextLabelNum();
+	int whileEndNo = globalStack->getNextLabelNum();
+	char begin[20], end[20];
+	sprintf(begin, "loopBegin_%d", whileBeginNo);
+	sprintf(end, "loopEnd_%d", whileEndNo);
+	codegen->GenLabel(begin);
+	Location *t = test->generateCode(codegen);
+	codegen->GenIfZ(t, end);
+	globalStack->setLoopMarker(whileEndNo);
+	body->Emit(codegen);
+	codegen->GenGoto(begin);
+	codegen->GenLabel(end);
 }
 
 IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) { 
@@ -216,6 +248,23 @@ void IfStmt::checkSemantics(Scope *currentScope) {
 	}
 }
 
+void IfStmt::Emit(CodeGenerator *codegen) {
+	Location *t = test->generateCode(codegen);
+	int elseLabelNo = globalStack->getNextLabelNum();
+	char elseLabel[20], end[20];
+	sprintf(elseLabel, "else_%d", elseLabelNo);
+	int endLabelNo = globalStack->getNextLabelNum();
+	sprintf(end, "endif_%d", endLabelNo);
+	codegen->GenIfZ(t, elseLabel);
+	body->Emit(codegen);
+	codegen->GenGoto(end);
+	codegen->GenLabel(elseLabel);
+	if (elseBody != NULL) {
+		elseBody->Emit(codegen);
+	}
+	codegen->GenLabel(end);
+}
+
 void BreakStmt::checkSemantics(Scope *currentScope) {
 	bool insideLoop = false;
 	Node *p = this->GetParent();
@@ -229,6 +278,13 @@ void BreakStmt::checkSemantics(Scope *currentScope) {
 	if (!insideLoop) {
  		ReportError::BreakOutsideLoop(this);
 	}
+}
+
+void BreakStmt::Emit(CodeGenerator *codegen) {
+	int jumpLocation = globalStack->getCurrentLoopMarker();
+	char jumpLabel[20];
+	sprintf(jumpLabel, "loopEnd_%d", jumpLocation);
+	codegen->GenGoto(jumpLabel);
 }
 
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 

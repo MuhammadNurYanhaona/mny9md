@@ -83,7 +83,8 @@ class FnDecl : public Decl
     List<VarDecl*> *formals;
     Type *returnType;
     Stmt *body;
-    StackFrame *runtimeStack; 	
+    StackFrame *runtimeStack; 
+    const char* tacName;		
     
   public:
     FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
@@ -93,7 +94,8 @@ class FnDecl : public Decl
     Type* getReturnType() { return returnType; }			
     Scope* ConstructSymbolTable(Scope *currentScope);	
     void checkSemantics(Scope *currentScope);
-    void Emit(CodeGenerator *codegen);			
+    void Emit(CodeGenerator *codegen);
+    const char* getTacName();				
 };
 
 #endif

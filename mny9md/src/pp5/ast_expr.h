@@ -237,6 +237,7 @@ class Call : public Expr
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
     void checkSemantics(Scope *currentScope);
+    Location* generateCode(CodeGenerator *codegen); 	
 };
 
 class NewExpr : public Expr

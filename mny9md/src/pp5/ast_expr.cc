@@ -158,7 +158,7 @@ Location* RelationalExpr::generateCode(CodeGenerator *codegen) {
 		return codegen->GenBinaryOp("<", t2, t1);
 	}
 	Location *one = codegen->GenLoadConstant(1);
-	if (strcmp(">=" , token)) {
+	if (strcmp(">=" , token) == 0) {
 		Location *t2Prime = codegen->GenBinaryOp("-", t2, one);
 		return codegen->GenBinaryOp("<", t2Prime, t1);
 	} else {
@@ -193,9 +193,8 @@ Location* EqualityExpr::generateCode(CodeGenerator *codegen) {
 		equalityCheck = codegen->GenBinaryOp("==", t1, t2);
 	}
 	if (strcmp("!=", op->getToken()) == 0) {
-		// rather it should be tackled using ifz statement
-		Location *one = codegen->GenLoadConstant(1);
-		return codegen->GenBinaryOp("-", one, equalityCheck);
+		Location *zero = codegen->GenLoadConstant(0);
+		return codegen->GenBinaryOp("==", equalityCheck, zero);
 	} else return equalityCheck;	
 }
 
@@ -230,10 +229,9 @@ Location* LogicalExpr::generateCode(CodeGenerator *codegen) {
 	if (strcmp("!", op->getToken()) != 0) {
 		return CompoundExpr::generateCode(codegen);
 	}
-	// this should also be handled using a ifz statement to be safe
 	Location *t1 = right->generateCode(codegen);
-	Location *one = codegen->GenLoadConstant(1);
-	return codegen->GenBinaryOp("-", one, t1);
+	Location *zero = codegen->GenLoadConstant(0);
+	return codegen->GenBinaryOp("==", t1, zero);
 }
 
 void AssignExpr::checkSemantics(Scope *currentScope) {
@@ -458,6 +456,10 @@ void Call::checkSemantics(Scope *currentScope) {
 		}
 	}
 } 
+
+Location* Call::generateCode(CodeGenerator *codegen) {
+	return NULL;
+}
 
 NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) { 
   Assert(c != NULL);

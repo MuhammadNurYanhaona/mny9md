@@ -43,21 +43,30 @@ enum ScopeType {GlobalScope, InterfaceScope, ClassScope, FunctionScope, Statemen
 class StackFrame {
 
      private:
-	bool localStack;	
+	bool localStack;
+	int labelCount;	
 	int variableCount;
+	int parameterCount;
+	int currentLoopMarker;
 	Hashtable<Location*> *items;
 
      public:
 	StackFrame(bool localStack) {
 		this->localStack = localStack;
+		labelCount = 0;
 		variableCount = 0;
+		parameterCount = 0;
 		items = new Hashtable<Location*>;
 	}
 
 	Location* getLocation(const char *var) { return items->Lookup(var); }
 	int getVarCount() { return variableCount; }
 	Location* createLocalVar(const char *name);
-	Location* createTemp();	 
+	Location* createParameter(const char *name);
+	Location* createTemp();
+	int getNextLabelNum() { return labelCount++; }
+	void setLoopMarker(int mark) { currentLoopMarker = mark; }
+	int getCurrentLoopMarker() { return currentLoopMarker; }	 
 };
 
 class Node 

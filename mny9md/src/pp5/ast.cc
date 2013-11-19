@@ -37,6 +37,14 @@ Location* StackFrame::createTemp() {
 	return location;
 }
 
+Location* StackFrame::createParameter(const char *name) {
+	int offset = CodeGenerator::OffsetToFirstParam + parameterCount * CodeGenerator::VarSize;
+	Location *location = new Location(fpRelative, offset, name);
+	items->Enter(name, location, false);
+	parameterCount++;
+	return location;	
+}
+
 Node::Node(yyltype loc) {
     location = new yyltype(loc);
     parent = NULL;

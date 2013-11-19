@@ -84,6 +84,7 @@ class ForStmt : public LoopStmt
   public:
     ForStmt(Expr *init, Expr *test, Expr *step, Stmt *body);
     void checkSemantics(Scope *currentScope);	
+    void Emit(CodeGenerator *codegen);		
 };
 
 class WhileStmt : public LoopStmt 
@@ -91,6 +92,7 @@ class WhileStmt : public LoopStmt
   public:
     WhileStmt(Expr *test, Stmt *body) : LoopStmt(test, body) {}
     void checkSemantics(Scope *currentScope);	
+    void Emit(CodeGenerator *codegen);		
 };
 
 class IfStmt : public ConditionalStmt 
@@ -101,6 +103,7 @@ class IfStmt : public ConditionalStmt
   public:
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
     void checkSemantics(Scope *currentScope);	
+    void Emit(CodeGenerator *codegen);		
 };
 
 class BreakStmt : public Stmt 
@@ -108,6 +111,7 @@ class BreakStmt : public Stmt
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
     void checkSemantics(Scope *currentScope);	
+    void Emit(CodeGenerator *codegen);		
 };
 
 class ReturnStmt : public Stmt  

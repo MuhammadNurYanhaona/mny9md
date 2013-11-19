@@ -198,7 +198,23 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     (returnType=r)->SetParent(this);
     (formals=d)->SetParentAll(this);
     body = NULL;
-    runtimeStack = NULL;	
+    runtimeStack = NULL;
+    tacName = NULL;		
+}
+
+const char* FnDecl::getTacName() {
+	if (this->tacName != NULL) return this->tacName;
+	const char *n = this->getName(); 
+	if (strcmp("main", n) == 0) return n;
+	ClassDecl *owner = dynamic_cast<ClassDecl*>(parent);
+	char temp[30];
+	if (owner != NULL) {
+		sprintf(temp, "%s_%s", owner->getName(), n);
+	} else {
+		sprintf(temp, "_%s", n);
+	}
+	this->tacName = strdup(temp);
+	return this->tacName;
 }
 
 Scope* FnDecl::ConstructSymbolTable(Scope *currentScope) {
@@ -238,8 +254,13 @@ void FnDecl::Emit(CodeGenerator *codegen) {
 
 	runtimeStack = new StackFrame(true);
 	currentLocalStack = runtimeStack;
-	codegen->GenLabel(this->getName());
+	codegen->GenLabel(this->getTacName());
 	BeginFunc *codeBegin = codegen->GenBeginFunc();
+
+	for (int i = 0; i < formals->NumElements(); i++) {
+		Decl *decl = formals->Nth(i);
+		currentLocalStack->createParameter(decl->getName());
+	}	
 
 	body->Emit(codegen);	
 

@@ -3,24 +3,41 @@ int globe;
 void main() {
 
 	int a;
-	int c;
+	int a2;
+	string me;
+	string st;
 	bool b;
-	bool b2;
-	string s;
+
+	b = false != true;
+	a = 100;
+	a2 = 0;
 	
-	b != b2;
+	while (true) {
+		Print("Another iteration\n");
+		a2++;
+		if (a2 >= 5) break;
+		Print("Hmmph\n");
+	}
+	
+	for (a2 = 0; a2 < a; a2 = a2 + 10) {
+		Print("A 2 is ", a2, "\n");
+	}
 
-	b2 = !(a > c);
-		
-	c > a++;
-	a < c;
-	(a >= c) || (a <= c);
-		
+	if (a >= 100) {
+		Print("Hello there\n");
+	}
 
-	a + 100;
-	-a;
-	s == "Hello, world";
-	a != a;
+	if (a <= 99) {
+		Print("working if\n");		
+	} else {
+		Print("working else\n");
+	}
 
-	Print(s, a, b);
+	//me = "Yan";
+	//st = " Help me";
+	//printMyStatement(me, st);
 }
+
+//void printMyStatement(string me, string statement) {
+//	Print(me, statement);
+//}
