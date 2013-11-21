@@ -57,6 +57,7 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     if (extends) extends->SetParent(this);
     (implements=imp)->SetParentAll(this);
     (members=m)->SetParentAll(this);
+    objectRepresentationCreated = false; 	
 }
 
 Scope* ClassDecl::ConstructSymbolTable(Scope *currentScope) {
@@ -158,6 +159,60 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 	}
 }
 
+void ClassDecl::createObjectRepresentation(List<ClassDecl*> *classList) {
+	
+	if (objectRepresentationCreated) return;
+	Hashtable<VarIndexMap*>* parentsMap = new Hashtable<VarIndexMap*>;
+	if (this->extends != NULL) {
+		for (int i = 0; i < classList->NumElements(); i++) {
+			ClassDecl *potentialParent = classList->Nth(i);
+			if (strcmp(potentialParent->getName(), this->extends->getName()) == 0) {
+				potentialParent->createObjectRepresentation(classList);
+				parentsMap = potentialParent->getVarIndexes();
+				break;
+			}
+		}
+	}
+//	printf("creating representation for %s\n", this->getName());
+	int indexStartPoint = 4;
+	Hashtable<VarIndexMap*>* myIndexMap = new Hashtable<VarIndexMap*>;
+	Iterator<VarIndexMap*> iter = parentsMap->GetIterator();
+        VarIndexMap *mapping;
+        while ((mapping = iter.GetNextValue()) != NULL) {
+                myIndexMap->Enter(mapping->name, mapping, false);
+		indexStartPoint += 4;
+        }
+
+	// assign each local variable appropriate index
+	for (int i = 0; i < members->NumElements(); i++) {
+		VarDecl *varDecl = dynamic_cast<VarDecl*>(members->Nth(i));
+		if (varDecl != NULL) {
+			VarIndexMap *mapping = new VarIndexMap(varDecl->getName(), indexStartPoint);
+			myIndexMap->Enter(mapping->name, mapping, false);
+			indexStartPoint += 4; 
+		}	
+	}
+
+	varIndexes = myIndexMap;
+	objectSize = indexStartPoint;
+	objectRepresentationCreated = true;
+/*
+	iter = myIndexMap->GetIterator();
+	while ((mapping = iter.GetNextValue()) != NULL) {
+		printf("%s at %d\n", mapping->name, mapping->index);
+	}*/	
+}
+
+void ClassDecl::Emit(CodeGenerator *codegen) {
+	// generate code for each member function
+	for (int i = 0; i < members->NumElements(); i++) {
+		FnDecl *fnDecl = dynamic_cast<FnDecl*>(members->Nth(i));
+		if (fnDecl != NULL) {
+			fnDecl->Emit(codegen);
+		}	
+	}
+}
+
 InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     Assert(n != NULL && m != NULL);
     (members=m)->SetParentAll(this);
@@ -256,6 +311,12 @@ void FnDecl::Emit(CodeGenerator *codegen) {
 	currentLocalStack = runtimeStack;
 	codegen->GenLabel(this->getTacName());
 	BeginFunc *codeBegin = codegen->GenBeginFunc();
+
+	ClassDecl *owner = dynamic_cast<ClassDecl*>(parent);
+	if (owner != NULL) {
+		currentLocalStack->insertThisPointer();
+		currentLocalStack->setVarIndexMap(owner->getVarIndexes());
+	}
 
 	for (int i = 0; i < formals->NumElements(); i++) {
 		Decl *decl = formals->Nth(i);

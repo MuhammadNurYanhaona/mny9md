@@ -112,15 +112,24 @@ void Program::Emit() {
 	}
 
 	// create vtables and methods for classes
+	List<ClassDecl*> *classList = new List<ClassDecl*>;
 	for (int i = 0; i < decls->NumElements(); i++) {
 		Decl *decl = decls->Nth(i);
 		ClassDecl *classDecl = dynamic_cast<ClassDecl*> (decl);
 		if (classDecl != NULL) {
-			printf("ignoring class declarations for the time being\n");
+			classList->Append(classDecl);
 		}
 	}
+	for (int i = 0; i < classList->NumElements(); i++) {
+		ClassDecl *classDecl = classList->Nth(i);
+		classDecl->createObjectRepresentation(classList);
+	}
+	for (int i = 0; i < classList->NumElements(); i++) {
+		ClassDecl *classDecl = classList->Nth(i);
+		classDecl->Emit(codegen);
+	}
 
-	// generate codes for methods
+	// generate codes for global methods
 	for (int i = 0; i < decls->NumElements(); i++) {
 		Decl *decl = decls->Nth(i);
 		FnDecl *fnDecl = dynamic_cast<FnDecl*> (decl);
@@ -290,6 +299,14 @@ void BreakStmt::Emit(CodeGenerator *codegen) {
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 
     Assert(e != NULL);
     (expr=e)->SetParent(this);
+}
+
+void ReturnStmt::Emit(CodeGenerator *codegen) {
+	if (expr == NULL) codegen->GenReturn();
+	else {
+		Location *location = expr->generateCode(codegen);
+		codegen->GenReturn(location);
+	}	
 }
 
 void ReturnStmt::checkSemantics(Scope *currentScope) {

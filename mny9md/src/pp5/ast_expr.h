@@ -194,6 +194,7 @@ class This : public Expr
   public:
     This(yyltype loc) : Expr(loc) {}
     void checkSemantics(Scope *currentScope);
+    Location* generateCode(CodeGenerator *codegen) { return CodeGenerator::ThisPtr; }	
 };
 
 class ArrayAccess : public LValue 

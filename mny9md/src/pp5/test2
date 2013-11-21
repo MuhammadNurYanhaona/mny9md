@@ -1,0 +1,36 @@
+void main() {
+	int x;
+	println("Hello World", "From Charlottesville");
+	x = generateNumber();
+	Print("Number is ", x);
+}
+
+void println(string s1, string s2) {
+	Print(s1, "\n");
+	Print(s2, "\n");
+	return;
+}
+
+int generateNumber() {
+	return 100;
+}
+
+class Student extends Person {
+	string school;
+	string major;
+	void printDetail() {
+		Print(name, "\n");
+		Print(major, "\n");
+	}
+}
+
+class Fruit {
+	string name;
+	int price;
+	bool tasty;
+}
+
+class Person {
+	string name;
+	int age;
+}

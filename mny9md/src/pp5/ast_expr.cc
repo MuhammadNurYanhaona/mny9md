@@ -353,10 +353,21 @@ Location* FieldAccess::generateCode(CodeGenerator *codegen) {
 	if (base == NULL) {
 		Location* fieldLocation = currentLocalStack->getLocation(field->getName());
 		if (fieldLocation == NULL) {
+			VarIndexMap *map = currentLocalStack->getVariableIndex(field->getName());
+			if (map != NULL) {
+				Location *thisPtr = currentLocalStack->getLocation("this");
+				fieldLocation = codegen->GenLoad(thisPtr, map->index); 
+			}
+		}	
+		if (fieldLocation == NULL) {
 			fieldLocation = globalStack->getLocation(field->getName());
 		}
 		return fieldLocation;
-	} else return NULL;
+	} else {
+		Location *baseLocation = base->generateCode(codegen); 	
+		VarIndexMap *map = currentLocalStack->getVariableIndex(field->getName());
+		return codegen->GenLoad(baseLocation, map->index); 
+	}
 }
 
 Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
@@ -458,6 +469,31 @@ void Call::checkSemantics(Scope *currentScope) {
 } 
 
 Location* Call::generateCode(CodeGenerator *codegen) {
+
+	bool returnRequired = true;
+	if (Type::voidType == this->getExprType()) {
+		returnRequired = false;	
+	}
+	
+	if (base == NULL) {
+		List<Location*> *paramLocations = new List<Location*>;
+		for (int i = 0; i < actuals->NumElements(); i++) {
+			Expr *param = actuals->Nth(i);
+			Location *loc = param->generateCode(codegen);
+			paramLocations->Append(loc);
+		}
+		for (int i = paramLocations->NumElements() - 1; i >= 0; i--) {
+			codegen->GenPushParam(paramLocations->Nth(i));
+		}
+		char temp[30];
+		sprintf(temp, "_%s", field->getName());
+		Location *returnLoc = codegen->GenLCall(temp, returnRequired);
+		codegen->GenPopParams(paramLocations->NumElements() * 4);
+		return returnLoc;
+	}
+
+	// has to take care of member functions properly later
+	// this also requires finding the appropriate name of the function (probably)
 	return NULL;
 }
 

@@ -45,6 +45,12 @@ Location* StackFrame::createParameter(const char *name) {
 	return location;	
 }
 
+Location* StackFrame::insertThisPointer() {
+	items->Enter("this", CodeGenerator::ThisPtr, false);
+	parameterCount++;
+	return CodeGenerator::ThisPtr;	
+}
+
 Node::Node(yyltype loc) {
     location = new yyltype(loc);
     parent = NULL;

@@ -54,6 +54,9 @@ class ClassDecl : public Decl
     List<Decl*> *members;
     NamedType *extends;
     List<NamedType*> *implements;
+    bool objectRepresentationCreated;
+    Hashtable<VarIndexMap*> *varIndexes;
+    int objectSize;					
 
   public:
     ClassDecl(Identifier *name, NamedType *extends, 
@@ -62,7 +65,12 @@ class ClassDecl : public Decl
     NamedType* getExtends() { return extends; }	
     List<NamedType*>* getImplements() { return implements; }	
     Scope* ConstructSymbolTable(Scope *currentScope);
-    void checkSemantics(Scope *currentScope);		
+    void checkSemantics(Scope *currentScope);	
+    VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }
+    Hashtable<VarIndexMap*>* getVarIndexes() { return varIndexes; }	
+    void createObjectRepresentation(List<ClassDecl*> *classList);
+    int getSize() { return objectSize; }				
+    void Emit(CodeGenerator *codegen);
 };
 
 class InterfaceDecl : public Decl 
@@ -84,7 +92,7 @@ class FnDecl : public Decl
     Type *returnType;
     Stmt *body;
     StackFrame *runtimeStack; 
-    const char* tacName;		
+    const char* tacName; 			
     
   public:
     FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
@@ -95,7 +103,8 @@ class FnDecl : public Decl
     Scope* ConstructSymbolTable(Scope *currentScope);	
     void checkSemantics(Scope *currentScope);
     void Emit(CodeGenerator *codegen);
-    const char* getTacName();				
+    const char* getTacName();
+    					
 };
 
 #endif

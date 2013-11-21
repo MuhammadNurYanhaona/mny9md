@@ -122,6 +122,7 @@ class ReturnStmt : public Stmt
   public:
     ReturnStmt(yyltype loc, Expr *expr);
     void checkSemantics(Scope *currentScope);	
+    void Emit(CodeGenerator *codegen);		
 };
 
 class PrintStmt : public Stmt

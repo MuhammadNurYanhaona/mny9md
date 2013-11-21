@@ -40,6 +40,16 @@ class Scope;
 enum SymbolType {Variable, Class, Interface, Function, Error, NotApplicable};
 enum ScopeType {GlobalScope, InterfaceScope, ClassScope, FunctionScope, StatementBlockScope, ExecutionScope};
 
+class VarIndexMap {
+  public:
+    const char *name;
+    int index;
+    VarIndexMap(const char *name, int index) {
+        this->name = name;
+        this->index = index;
+    }
+};
+
 class StackFrame {
 
      private:
@@ -49,6 +59,7 @@ class StackFrame {
 	int parameterCount;
 	int currentLoopMarker;
 	Hashtable<Location*> *items;
+	Hashtable<VarIndexMap*> *varIndexes;
 
      public:
 	StackFrame(bool localStack) {
@@ -57,6 +68,7 @@ class StackFrame {
 		variableCount = 0;
 		parameterCount = 0;
 		items = new Hashtable<Location*>;
+		varIndexes = new Hashtable<VarIndexMap*>;
 	}
 
 	Location* getLocation(const char *var) { return items->Lookup(var); }
@@ -64,10 +76,15 @@ class StackFrame {
 	Location* createLocalVar(const char *name);
 	Location* createParameter(const char *name);
 	Location* createTemp();
+	Location* insertThisPointer();
 	int getNextLabelNum() { return labelCount++; }
 	void setLoopMarker(int mark) { currentLoopMarker = mark; }
-	int getCurrentLoopMarker() { return currentLoopMarker; }	 
+	int getCurrentLoopMarker() { return currentLoopMarker; }
+	void setVarIndexMap(Hashtable<VarIndexMap*> *varIndexes) { this->varIndexes = varIndexes; }
+	VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }	 
 };
+
+
 
 class Node 
 {
