@@ -68,52 +68,85 @@
 	  lw $fp, 0($fp)	# restore saved fp
 	  jr $ra		# return from function
   main:
-	# BeginFunc 20
+	# BeginFunc 56
 	  subu $sp, $sp, 8	# decrement sp to make space to save ra, fp
 	  sw $fp, 8($sp)	# save fp
 	  sw $ra, 4($sp)	# save ra
 	  addiu $fp, $sp, 8	# set up new fp
-	  subu $sp, $sp, 20	# decrement sp to make space for locals/temps
-	# _tmp1 = "Hello World"
+	  subu $sp, $sp, 56	# decrement sp to make space for locals/temps
+	# _tmp2 = 10
+	  li $t2, 10		# load constant value 10 into $t2
+	  sw $t2, -20($fp)	# spill _tmp2 from $t2 to $fp-20
+	# _tmp3 = 4
+	  li $t2, 4		# load constant value 4 into $t2
+	  sw $t2, -24($fp)	# spill _tmp3 from $t2 to $fp-24
+	# _tmp4 = _tmp2 * _tmp3
+	  lw $t0, -20($fp)	# fill _tmp2 to $t0 from $fp-20
+	  lw $t1, -24($fp)	# fill _tmp3 to $t1 from $fp-24
+	  mul $t2, $t0, $t1	
+	  sw $t2, -28($fp)	# spill _tmp4 from $t2 to $fp-28
+	# _tmp5 = _tmp4 + _tmp3
+	  lw $t0, -28($fp)	# fill _tmp4 to $t0 from $fp-28
+	  lw $t1, -24($fp)	# fill _tmp3 to $t1 from $fp-24
+	  add $t2, $t0, $t1	
+	  sw $t2, -32($fp)	# spill _tmp5 from $t2 to $fp-32
+	# PushParam _tmp5
+	  subu $sp, $sp, 4	# decrement sp to make space for param
+	  lw $t0, -32($fp)	# fill _tmp5 to $t0 from $fp-32
+	  sw $t0, 4($sp)	# copy param value to stack
+	# _tmp6 = LCall _Alloc
+	  jal _Alloc         	# jump to function
+	  move $t2, $v0		# copy function return value from $v0
+	  sw $t2, -36($fp)	# spill _tmp6 from $t2 to $fp-36
+	# PopParams 4
+	  add $sp, $sp, 4	# pop params off stack
+	# *(_tmp6) = _tmp2
+	  lw $t0, -20($fp)	# fill _tmp2 to $t0 from $fp-20
+	  lw $t2, -36($fp)	# fill _tmp6 to $t2 from $fp-36
+	  sw $t0, 0($t2) 	# store with offset
+	# y = _tmp6
+	  lw $t2, -36($fp)	# fill _tmp6 to $t2 from $fp-36
+	  sw $t2, 4($gp)	# spill y from $t2 to $gp+4
+	# _tmp7 = "Hello World"
 	  .data			# create string constant marked with label
 	  _string3: .asciiz "Hello World"
 	  .text
 	  la $t2, _string3	# load label
-	  sw $t2, -16($fp)	# spill _tmp1 from $t2 to $fp-16
-	# _tmp2 = "From Charlottesville"
+	  sw $t2, -40($fp)	# spill _tmp7 from $t2 to $fp-40
+	# _tmp8 = "From Charlottesville"
 	  .data			# create string constant marked with label
 	  _string4: .asciiz "From Charlottesville"
 	  .text
 	  la $t2, _string4	# load label
-	  sw $t2, -20($fp)	# spill _tmp2 from $t2 to $fp-20
-	# PushParam _tmp2
+	  sw $t2, -44($fp)	# spill _tmp8 from $t2 to $fp-44
+	# PushParam _tmp8
 	  subu $sp, $sp, 4	# decrement sp to make space for param
-	  lw $t0, -20($fp)	# fill _tmp2 to $t0 from $fp-20
+	  lw $t0, -44($fp)	# fill _tmp8 to $t0 from $fp-44
 	  sw $t0, 4($sp)	# copy param value to stack
-	# PushParam _tmp1
+	# PushParam _tmp7
 	  subu $sp, $sp, 4	# decrement sp to make space for param
-	  lw $t0, -16($fp)	# fill _tmp1 to $t0 from $fp-16
+	  lw $t0, -40($fp)	# fill _tmp7 to $t0 from $fp-40
 	  sw $t0, 4($sp)	# copy param value to stack
 	# LCall _println
 	  jal _println       	# jump to function
 	# PopParams 8
 	  add $sp, $sp, 8	# pop params off stack
-	# _tmp3 = LCall _generateNumber
+	# _tmp9 = LCall _generateNumber
 	  jal _generateNumber	# jump to function
 	  move $t2, $v0		# copy function return value from $v0
-	  sw $t2, -24($fp)	# spill _tmp3 from $t2 to $fp-24
-	# x = _tmp3
-	  lw $t2, -24($fp)	# fill _tmp3 to $t2 from $fp-24
+	  sw $t2, -48($fp)	# spill _tmp9 from $t2 to $fp-48
+	# x = _tmp9
+	  lw $t2, -48($fp)	# fill _tmp9 to $t2 from $fp-48
 	  sw $t2, 0($gp)	# spill x from $t2 to $gp+0
-	# _tmp4 = "Number is "
+	# _tmp10 = "Number is "
 	  .data			# create string constant marked with label
 	  _string5: .asciiz "Number is "
 	  .text
 	  la $t2, _string5	# load label
-	  sw $t2, -28($fp)	# spill _tmp4 from $t2 to $fp-28
-	# PushParam _tmp4
+	  sw $t2, -52($fp)	# spill _tmp10 from $t2 to $fp-52
+	# PushParam _tmp10
 	  subu $sp, $sp, 4	# decrement sp to make space for param
-	  lw $t0, -28($fp)	# fill _tmp4 to $t0 from $fp-28
+	  lw $t0, -52($fp)	# fill _tmp10 to $t0 from $fp-52
 	  sw $t0, 4($sp)	# copy param value to stack
 	# LCall _PrintString
 	  jal _PrintString   	# jump to function
@@ -122,6 +155,46 @@
 	# PushParam x
 	  subu $sp, $sp, 4	# decrement sp to make space for param
 	  lw $t0, 0($gp)	# fill x to $t0 from $gp+0
+	  sw $t0, 4($sp)	# copy param value to stack
+	# LCall _PrintInt
+	  jal _PrintInt      	# jump to function
+	# PopParams 4
+	  add $sp, $sp, 4	# pop params off stack
+	# _tmp11 = "\n"
+	  .data			# create string constant marked with label
+	  _string6: .asciiz "\n"
+	  .text
+	  la $t2, _string6	# load label
+	  sw $t2, -56($fp)	# spill _tmp11 from $t2 to $fp-56
+	# PushParam _tmp11
+	  subu $sp, $sp, 4	# decrement sp to make space for param
+	  lw $t0, -56($fp)	# fill _tmp11 to $t0 from $fp-56
+	  sw $t0, 4($sp)	# copy param value to stack
+	# LCall _PrintString
+	  jal _PrintString   	# jump to function
+	# PopParams 4
+	  add $sp, $sp, 4	# pop params off stack
+	# _tmp12 = "Array size is "
+	  .data			# create string constant marked with label
+	  _string7: .asciiz "Array size is "
+	  .text
+	  la $t2, _string7	# load label
+	  sw $t2, -60($fp)	# spill _tmp12 from $t2 to $fp-60
+	# PushParam _tmp12
+	  subu $sp, $sp, 4	# decrement sp to make space for param
+	  lw $t0, -60($fp)	# fill _tmp12 to $t0 from $fp-60
+	  sw $t0, 4($sp)	# copy param value to stack
+	# LCall _PrintString
+	  jal _PrintString   	# jump to function
+	# PopParams 4
+	  add $sp, $sp, 4	# pop params off stack
+	# _tmp13 = *(y)
+	  lw $t0, 4($gp)	# fill y to $t0 from $gp+4
+	  lw $t2, 0($t0) 	# load with offset
+	  sw $t2, -64($fp)	# spill _tmp13 from $t2 to $fp-64
+	# PushParam _tmp13
+	  subu $sp, $sp, 4	# decrement sp to make space for param
+	  lw $t0, -64($fp)	# fill _tmp13 to $t0 from $fp-64
 	  sw $t0, 4($sp)	# copy param value to stack
 	# LCall _PrintInt
 	  jal _PrintInt      	# jump to function
@@ -150,9 +223,9 @@
 	  add $sp, $sp, 4	# pop params off stack
 	# _tmp0 = "\n"
 	  .data			# create string constant marked with label
-	  _string6: .asciiz "\n"
+	  _string8: .asciiz "\n"
 	  .text
-	  la $t2, _string6	# load label
+	  la $t2, _string8	# load label
 	  sw $t2, -12($fp)	# spill _tmp0 from $t2 to $fp-12
 	# PushParam _tmp0
 	  subu $sp, $sp, 4	# decrement sp to make space for param
@@ -172,9 +245,9 @@
 	  add $sp, $sp, 4	# pop params off stack
 	# _tmp1 = "\n"
 	  .data			# create string constant marked with label
-	  _string7: .asciiz "\n"
+	  _string9: .asciiz "\n"
 	  .text
-	  la $t2, _string7	# load label
+	  la $t2, _string9	# load label
 	  sw $t2, -16($fp)	# spill _tmp1 from $t2 to $fp-16
 	# PushParam _tmp1
 	  subu $sp, $sp, 4	# decrement sp to make space for param
@@ -202,8 +275,9 @@
 	  sw $ra, 4($sp)	# save ra
 	  addiu $fp, $sp, 8	# set up new fp
 	  subu $sp, $sp, 4	# decrement sp to make space for locals/temps
-	# _tmp0 = 100
-	  li $t2, 100		# load constant value 100 into $t2
+	# _tmp0 = LCall _ReadInteger
+	  jal _ReadInteger   	# jump to function
+	  move $t2, $v0		# copy function return value from $v0
 	  sw $t2, -12($fp)	# spill _tmp0 from $t2 to $fp-12
 	# Return _tmp0
 	  lw $t2, -12($fp)	# fill _tmp0 to $t2 from $fp-12

@@ -260,6 +260,7 @@ class NewArrayExpr : public Expr
   public:
     NewArrayExpr(yyltype loc, Expr *sizeExpr, Type *elemType);
     void checkSemantics(Scope *currentScope);
+    Location* generateCode(CodeGenerator *codegen);	
 };
 
 class ReadIntegerExpr : public Expr
@@ -267,6 +268,7 @@ class ReadIntegerExpr : public Expr
   public:
     ReadIntegerExpr(yyltype loc) : Expr(loc) { exprType = Type::intType; }
     Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("int"); }	 	
+    Location* generateCode(CodeGenerator *codegen) { return codegen->GenBuiltInCall(ReadInteger); } 	
 };
 
 class ReadLineExpr : public Expr
@@ -274,6 +276,7 @@ class ReadLineExpr : public Expr
   public:
     ReadLineExpr(yyltype loc) : Expr (loc) { exprType = Type::stringType; }
     Symbol* getTypeSymbol(Scope *currentScope) { return currentScope->lookup("string"); }
+    Location* generateCode(CodeGenerator *codegen) { return codegen->GenBuiltInCall(ReadLine); } 	
 };
 
     

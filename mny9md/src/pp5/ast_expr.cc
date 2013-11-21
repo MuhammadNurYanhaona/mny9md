@@ -490,6 +490,12 @@ Location* Call::generateCode(CodeGenerator *codegen) {
 		Location *returnLoc = codegen->GenLCall(temp, returnRequired);
 		codegen->GenPopParams(paramLocations->NumElements() * 4);
 		return returnLoc;
+	} else {
+		Location *baseLocation = base->generateCode(codegen);
+		Type *baseType = base->getExprType();
+		if (baseType->getVariableType() == Array) {
+			return codegen->GenLoad(baseLocation);
+		}
 	}
 
 	// has to take care of member functions properly later
@@ -539,5 +545,15 @@ void NewArrayExpr::checkSemantics(Scope *currentScope) {
 	this->typeSymbol = symbol;
 	this->exprType = new ArrayType(*location, elemType);
     }			 	
+}
+
+Location* NewArrayExpr::generateCode(CodeGenerator *codegen) {
+	Location *count = size->generateCode(codegen);
+	Location *elementSize = codegen->GenLoadConstant(4);
+	Location *totalSize = codegen->GenBinaryOp("*", count, elementSize);
+	Location *sizeWithLengthInfo = codegen->GenBinaryOp("+", totalSize, elementSize); 
+	Location *array = codegen->GenBuiltInCall(Alloc, sizeWithLengthInfo);
+	codegen->GenStore(array, count);
+	return array;
 }
        

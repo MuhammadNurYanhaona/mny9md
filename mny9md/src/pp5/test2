@@ -1,8 +1,11 @@
 void main() {
 	int x;
+	int[] y;
+	y = NewArray(10, int);
 	println("Hello World", "From Charlottesville");
 	x = generateNumber();
-	Print("Number is ", x);
+	Print("Number is ", x, "\n");
+	Print("Array size is ", y.length());
 }
 
 void println(string s1, string s2) {
@@ -12,7 +15,7 @@ void println(string s1, string s2) {
 }
 
 int generateNumber() {
-	return 100;
+	return ReadInteger();
 }
 
 class Student extends Person {
