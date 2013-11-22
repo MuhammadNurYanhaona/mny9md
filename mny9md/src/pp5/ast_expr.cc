@@ -248,9 +248,17 @@ void AssignExpr::checkSemantics(Scope *currentScope) {
 }
 
 Location* AssignExpr::generateCode(CodeGenerator *codegen) {
-	Location *t1 = left->generateCode(codegen);
+
+	Location *t1;
 	Location *t2 = right->generateCode(codegen);
-	codegen->GenAssign(t1, t2);
+	ArrayAccess *arrayAccess = dynamic_cast<ArrayAccess*>(left);
+	if (arrayAccess != NULL) {
+		t1 = arrayAccess->generateAddress(codegen);
+		codegen->GenStore(t1, t2);
+	} else { 
+		t1 = left->generateCode(codegen);
+		codegen->GenAssign(t1, t2);
+	}
 	return t1;
 }
 
@@ -283,6 +291,21 @@ void ArrayAccess::checkSemantics(Scope *currentScope) {
 	if (subType != Type::intType && subType != Type::errorType) {
 		ReportError::SubscriptNotInteger(subscript);
 	}	
+}
+
+Location* ArrayAccess::generateAddress(CodeGenerator *codegen) {
+	Location *beginning = base->generateCode(codegen);
+	Location *index = subscript->generateCode(codegen);
+	Location *size = codegen->GenLoad(beginning);
+	Location *four = codegen->GenLoadConstant(4);
+	Location *wordIndex = codegen->GenBinaryOp("*", index, four);
+	Location *unshiftedAddr = codegen->GenBinaryOp("+", beginning, wordIndex);
+	return codegen->GenBinaryOp("+", unshiftedAddr, four);
+}
+
+Location* ArrayAccess::generateCode(CodeGenerator *codegen) {
+	Location *address = this->generateAddress(codegen);
+	return codegen->GenLoad(address);
 }
      
 FieldAccess::FieldAccess(Expr *b, Identifier *f) 

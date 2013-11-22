@@ -205,6 +205,8 @@ class ArrayAccess : public LValue
   public:
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
     void checkSemantics(Scope *currentScope);
+    Location* generateAddress(CodeGenerator *codegen); 	
+    Location* generateCode(CodeGenerator *codegen); 	
 };
 
 /* Note that field access is used both for qualified names

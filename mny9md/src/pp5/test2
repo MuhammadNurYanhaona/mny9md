@@ -1,7 +1,17 @@
 void main() {
+
 	int x;
 	int[] y;
 	y = NewArray(10, int);
+	
+	for (x = 0; x < 10; x++) {
+		y[x] = x * x;
+	}
+
+	for (x = 0; x < 10; x++) {
+		Print(y[x], "\n");
+	}
+
 	println("Hello World", "From Charlottesville");
 	x = generateNumber();
 	Print("Number is ", x, "\n");
