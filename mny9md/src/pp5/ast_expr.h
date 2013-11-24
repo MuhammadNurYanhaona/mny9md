@@ -251,6 +251,7 @@ class NewExpr : public Expr
   public:
     NewExpr(yyltype loc, NamedType *clsType);
     void checkSemantics(Scope *currentScope);
+    Location* generateCode(CodeGenerator *codegen); 	
 };
 
 class NewArrayExpr : public Expr

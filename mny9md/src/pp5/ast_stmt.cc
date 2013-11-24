@@ -99,7 +99,7 @@ void Program::Emit() {
      *      polymorphism in the node classes.
      */
 
-	//SetDebugForKey("tac", true);
+	SetDebugForKey("tac", true);
 	CodeGenerator *codegen = new CodeGenerator();
 
 	// allocate locations for the global variables
@@ -118,6 +118,7 @@ void Program::Emit() {
 		ClassDecl *classDecl = dynamic_cast<ClassDecl*> (decl);
 		if (classDecl != NULL) {
 			classList->Append(classDecl);
+			ClassDecl::classDeclList->Enter(classDecl->getName(), classDecl, false);
 		}
 	}
 	for (int i = 0; i < classList->NumElements(); i++) {

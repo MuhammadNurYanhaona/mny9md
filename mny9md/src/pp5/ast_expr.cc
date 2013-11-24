@@ -542,6 +542,13 @@ void NewExpr::checkSemantics(Scope *currentScope) {
 	}
 }
 
+Location* NewExpr::generateCode(CodeGenerator *codegen) {
+	ClassDecl *classDecl = ClassDecl::classDeclList->Lookup(cType->getName());
+	int objectSize = classDecl->getSize();
+	Location *sizeParam = codegen->GenLoadConstant(objectSize);
+	return codegen->GenBuiltInCall(Alloc, sizeParam);
+}
+
 NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     Assert(sz != NULL && et != NULL);
     (size=sz)->SetParent(this); 

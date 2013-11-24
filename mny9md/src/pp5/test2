@@ -1,21 +1,30 @@
 void main() {
-
+	
 	int x;
-	int[] y;
-	y = NewArray(10, int);
+	int x2;
+	int[][] y;
+	y = NewArray(10, int[]);
 	
 	for (x = 0; x < 10; x++) {
-		y[x] = x * x;
+		y[x] = NewArray(5, int);
 	}
 
 	for (x = 0; x < 10; x++) {
-		Print(y[x], "\n");
+		for (x2 = 0; x2 < 5; x2++)
+			y[x][x2] = x * 10 + x2;
 	}
 
 	println("Hello World", "From Charlottesville");
 	x = generateNumber();
 	Print("Number is ", x, "\n");
 	Print("Array size is ", y.length());
+	
+	for (x = 0; x < 10; x++) {
+		Print("Subarray size ", y[x].length(), "\n");
+		for (x2 = 0; x2 < 5; x2++) {
+			Print("\t", y[x][x2], "\n");
+		}
+	}
 }
 
 void println(string s1, string s2) {

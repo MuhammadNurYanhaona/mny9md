@@ -50,6 +50,8 @@ void VarDecl::checkSemantics(Scope *currentScope) {
 	}
 }
 
+Hashtable<ClassDecl*>* ClassDecl::classDeclList = new Hashtable<ClassDecl*>;
+
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
     // extends can be NULL, impl & mem may be empty lists but cannot be NULL
     Assert(n != NULL && imp != NULL && m != NULL);     
@@ -162,6 +164,9 @@ void ClassDecl::checkSemantics(Scope *currentScope) {
 void ClassDecl::createObjectRepresentation(List<ClassDecl*> *classList) {
 	
 	if (objectRepresentationCreated) return;
+	
+	// assign each local variable appropriate index
+	
 	Hashtable<VarIndexMap*>* parentsMap = new Hashtable<VarIndexMap*>;
 	if (this->extends != NULL) {
 		for (int i = 0; i < classList->NumElements(); i++) {
@@ -173,7 +178,6 @@ void ClassDecl::createObjectRepresentation(List<ClassDecl*> *classList) {
 			}
 		}
 	}
-//	printf("creating representation for %s\n", this->getName());
 	int indexStartPoint = 4;
 	Hashtable<VarIndexMap*>* myIndexMap = new Hashtable<VarIndexMap*>;
 	Iterator<VarIndexMap*> iter = parentsMap->GetIterator();
@@ -183,7 +187,6 @@ void ClassDecl::createObjectRepresentation(List<ClassDecl*> *classList) {
 		indexStartPoint += 4;
         }
 
-	// assign each local variable appropriate index
 	for (int i = 0; i < members->NumElements(); i++) {
 		VarDecl *varDecl = dynamic_cast<VarDecl*>(members->Nth(i));
 		if (varDecl != NULL) {
@@ -192,15 +195,54 @@ void ClassDecl::createObjectRepresentation(List<ClassDecl*> *classList) {
 			indexStartPoint += 4; 
 		}	
 	}
-
+	
 	varIndexes = myIndexMap;
 	objectSize = indexStartPoint;
+	
+	// assign each member function a position in the VTable
+	
+	functionIndexes = new Hashtable<MemberFunctionIndexMap*>;
+
+	Hashtable<MemberFunctionIndexMap*> *inheritedMethodIndexes = NULL; 
+	if (this->extends != NULL) {
+		ClassDecl *superClass = ClassDecl::classDeclList->Lookup(this->extends->getName());
+		inheritedMethodIndexes = superClass->functionIndexes;
+	}
+
+	int functionCount = 0;
+	if (inheritedMethodIndexes != NULL) {
+		Iterator<MemberFunctionIndexMap*> functionIter = inheritedMethodIndexes->GetIterator();
+		MemberFunctionIndexMap *functionIndex;
+		while ((functionIndex = functionIter.GetNextValue()) != NULL) {
+			functionIndexes->Enter(functionIndex->name, functionIndex, false);
+			functionCount++;
+		}
+	}
+	
+	for (int i = 0; i < members->NumElements(); i++) {
+		FnDecl *fnDecl = dynamic_cast<FnDecl*>(members->Nth(i));
+		if (fnDecl != NULL) {
+			MemberFunctionIndexMap *tacMapping = new MemberFunctionIndexMap(fnDecl->getName(), 
+					fnDecl->getTacName(), functionCount);
+			if (functionIndexes->Lookup(fnDecl->getName()) != NULL) {
+				tacMapping->index = functionIndexes->Lookup(fnDecl->getName())->index;
+			} else functionCount++;
+			functionIndexes->Enter(tacMapping->name, tacMapping, true);
+		}	
+	}
+
+	// put member function names in the list in sequence	
+	tacFunctionLabels = new List<const char*>;
+	for (int i = 0; i < functionCount; i++) {
+		Iterator<MemberFunctionIndexMap*> functionIter = functionIndexes->GetIterator();
+		MemberFunctionIndexMap *functionIndex;	
+		while ((functionIndex = functionIter.GetNextValue()) != NULL) {
+			if (functionIndex->index == i) break;
+		}
+		tacFunctionLabels->Append(functionIndex->label);
+	}
+
 	objectRepresentationCreated = true;
-/*
-	iter = myIndexMap->GetIterator();
-	while ((mapping = iter.GetNextValue()) != NULL) {
-		printf("%s at %d\n", mapping->name, mapping->index);
-	}*/	
 }
 
 void ClassDecl::Emit(CodeGenerator *codegen) {
@@ -211,6 +253,8 @@ void ClassDecl::Emit(CodeGenerator *codegen) {
 			fnDecl->Emit(codegen);
 		}	
 	}
+	// generate the VTable
+	codegen->GenVTable(this->getName(), tacFunctionLabels);
 }
 
 InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {

@@ -17,6 +17,7 @@
 #include "list.h"
 #include "tac.h"
 #include "codegen.h"
+#include "hashtable.h"
 
 class Type;
 class NamedType;
@@ -48,6 +49,20 @@ class VarDecl : public Decl
     void checkSemantics(Scope *currentScope);		
 };
 
+class MemberFunctionIndexMap {
+
+   public:
+	const char *name;
+	const char *label;
+	int index;
+
+	MemberFunctionIndexMap(const char *name, const char *label, int index) {
+		this->name = name;
+		this->label = label;
+		this->index = index;
+	}		
+};
+
 class ClassDecl : public Decl 
 {
   protected:
@@ -56,9 +71,13 @@ class ClassDecl : public Decl
     List<NamedType*> *implements;
     bool objectRepresentationCreated;
     Hashtable<VarIndexMap*> *varIndexes;
+    Hashtable<MemberFunctionIndexMap*> *functionIndexes;
+    List<const char*> *tacFunctionLabels;	
     int objectSize;					
 
   public:
+    static Hashtable<ClassDecl*> *classDeclList; 
+
     ClassDecl(Identifier *name, NamedType *extends, 
               List<NamedType*> *implements, List<Decl*> *members);
     SymbolType getSymbolType() { return Class; }
@@ -67,7 +86,8 @@ class ClassDecl : public Decl
     Scope* ConstructSymbolTable(Scope *currentScope);
     void checkSemantics(Scope *currentScope);	
     VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }
-    Hashtable<VarIndexMap*>* getVarIndexes() { return varIndexes; }	
+    Hashtable<VarIndexMap*>* getVarIndexes() { return varIndexes; }
+    int getFunctionIndex(const char *functionName) { return functionIndexes->Lookup(functionName)->index; }		
     void createObjectRepresentation(List<ClassDecl*> *classList);
     int getSize() { return objectSize; }				
     void Emit(CodeGenerator *codegen);
