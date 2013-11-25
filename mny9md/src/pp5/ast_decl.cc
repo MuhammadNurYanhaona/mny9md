@@ -360,6 +360,7 @@ void FnDecl::Emit(CodeGenerator *codegen) {
 	if (owner != NULL) {
 		currentLocalStack->insertThisPointer();
 		currentLocalStack->setVarIndexMap(owner->getVarIndexes());
+		currentLocalStack->setCurrentClass(owner->getName());
 	}
 
 	for (int i = 0; i < formals->NumElements(); i++) {

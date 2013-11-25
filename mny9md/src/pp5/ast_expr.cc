@@ -498,32 +498,61 @@ Location* Call::generateCode(CodeGenerator *codegen) {
 		returnRequired = false;	
 	}
 	
-	if (base == NULL) {
-		List<Location*> *paramLocations = new List<Location*>;
-		for (int i = 0; i < actuals->NumElements(); i++) {
-			Expr *param = actuals->Nth(i);
-			Location *loc = param->generateCode(codegen);
-			paramLocations->Append(loc);
-		}
-		for (int i = paramLocations->NumElements() - 1; i >= 0; i--) {
-			codegen->GenPushParam(paramLocations->Nth(i));
-		}
-		char temp[30];
-		sprintf(temp, "_%s", field->getName());
-		Location *returnLoc = codegen->GenLCall(temp, returnRequired);
-		codegen->GenPopParams(paramLocations->NumElements() * 4);
-		return returnLoc;
-	} else {
-		Location *baseLocation = base->generateCode(codegen);
+	char functionLabel[30];
+	bool globalFunction = false;
+	Location *baseLocation = NULL;
+	Location *dynamicFunctionLoc = NULL;
+	Location *returnLoc = NULL;
+	List<Location*> *paramLocations = new List<Location*>;
+
+	if (base != NULL) {
+		baseLocation = base->generateCode(codegen);
+	}
+	for (int i = 0; i < actuals->NumElements(); i++) {
+		Expr *param = actuals->Nth(i);
+		Location *loc = param->generateCode(codegen);
+		paramLocations->Append(loc);
+	}
+
+	if (base != NULL) {
 		Type *baseType = base->getExprType();
 		if (baseType->getVariableType() == Array) {
 			return codegen->GenLoad(baseLocation);
+		} else {
+			Location *vTable = codegen->GenLoad(baseLocation);
+			ClassDecl *baseClass = ClassDecl::classDeclList->Lookup(baseType->getName());
+			int indexOfFunction = baseClass->getFunctionIndex(field->getName());
+			dynamicFunctionLoc = codegen->GenLoad(vTable, indexOfFunction * 4); 	
 		}
+	} else if (currentLocalStack->getCurrentClass() != NULL) {
+		ClassDecl *classDecl = ClassDecl::classDeclList->Lookup(currentLocalStack->getCurrentClass());
+		if (classDecl->isMemberFunction(field->getName())) {
+			Location *vTable = codegen->GenLoad(CodeGenerator::ThisPtr);
+			int indexOfFunction = classDecl->getFunctionIndex(field->getName());
+			dynamicFunctionLoc = codegen->GenLoad(vTable, indexOfFunction * 4); 	
+		} else {
+			sprintf(functionLabel, "_%s", field->getName());
+			globalFunction = true;
+		}
+	} else {
+		sprintf(functionLabel, "_%s", field->getName());
+		globalFunction = true;
+	}
+		
+	for (int i = paramLocations->NumElements() - 1; i >= 0; i--) {
+		codegen->GenPushParam(paramLocations->Nth(i));
+	} 
+	if (baseLocation != NULL) {
+		codegen->GenPushParam(baseLocation);
 	}
 
-	// has to take care of member functions properly later
-	// this also requires finding the appropriate name of the function (probably)
-	return NULL;
+	if (globalFunction) {
+		returnLoc = codegen->GenLCall(functionLabel, returnRequired);
+	} else {
+		returnLoc = codegen->GenACall(dynamicFunctionLoc, returnRequired);
+	}
+	codegen->GenPopParams(paramLocations->NumElements() * 4);
+	return returnLoc;
 }
 
 NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) { 
@@ -546,7 +575,10 @@ Location* NewExpr::generateCode(CodeGenerator *codegen) {
 	ClassDecl *classDecl = ClassDecl::classDeclList->Lookup(cType->getName());
 	int objectSize = classDecl->getSize();
 	Location *sizeParam = codegen->GenLoadConstant(objectSize);
-	return codegen->GenBuiltInCall(Alloc, sizeParam);
+	Location *rowStorage = codegen->GenBuiltInCall(Alloc, sizeParam);
+	Location *vtable = codegen->GenLoadLabel(classDecl->getName());
+	codegen->GenStore(rowStorage, vtable);
+	return rowStorage;
 }
 
 NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {

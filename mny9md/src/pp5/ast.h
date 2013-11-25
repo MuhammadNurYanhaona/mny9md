@@ -60,6 +60,7 @@ class StackFrame {
 	int currentLoopMarker;
 	Hashtable<Location*> *items;
 	Hashtable<VarIndexMap*> *varIndexes;
+	const char* currentClass;
 
      public:
 	StackFrame(bool localStack) {
@@ -69,6 +70,7 @@ class StackFrame {
 		parameterCount = 0;
 		items = new Hashtable<Location*>;
 		varIndexes = new Hashtable<VarIndexMap*>;
+		currentClass = NULL;
 	}
 
 	Location* getLocation(const char *var) { return items->Lookup(var); }
@@ -81,7 +83,9 @@ class StackFrame {
 	void setLoopMarker(int mark) { currentLoopMarker = mark; }
 	int getCurrentLoopMarker() { return currentLoopMarker; }
 	void setVarIndexMap(Hashtable<VarIndexMap*> *varIndexes) { this->varIndexes = varIndexes; }
-	VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }	 
+	VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }
+	void setCurrentClass(const char *className) { currentClass = className; }
+	const char* getCurrentClass() { return currentClass; }	 
 };
 
 

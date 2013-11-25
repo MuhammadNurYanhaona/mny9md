@@ -5,38 +5,39 @@ void main() {
 
 	student = New(Student);
 	fruit = New(Fruit);
-	person = New(Person); 	
-}
-
-void println(string s1, string s2) {
-	Print(s1, "\n");
-	Print(s2, "\n");
-	return;
-}
-
-int generateNumber() {
-	return ReadInteger();
+	person = New(Person);
+	Print(student.getName(), "\n");
+	Print(fruit.getName(), "\n");
+	student.printDetail();
+	fruit.printDesc(); 	
 }
 
 class Student extends Person {
 	string school;
 	string major;
 	void printDetail() {
-		Print(name, "\n");
-		Print(major, "\n");
+		Print("Part of detail: ", getName(), "\n");
 	}
 	string getName() { return "need appropriate permission"; }
 }
 
-class Fruit {
-	string name;
+class Fruit extends Person {
 	int price;
 	bool tasty;
+	bool isTasty() { return true; }
+	void printDesc() {
+		Print("From fruit: ");
+		printDetail();
+	}
 }
 
 class Person {
 	string name;
 	int age;
 	int getAge() { return age; }
-	string getName() { return name; }
+	string getName() { return "there is no setter method"; }
+}
+
+void printDetail() {
+	Print("this is a global name\n");
 }

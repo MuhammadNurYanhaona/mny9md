@@ -99,7 +99,7 @@ void Program::Emit() {
      *      polymorphism in the node classes.
      */
 
-	SetDebugForKey("tac", true);
+	//SetDebugForKey("tac", true);
 	CodeGenerator *codegen = new CodeGenerator();
 
 	// allocate locations for the global variables

@@ -87,6 +87,7 @@ class ClassDecl : public Decl
     void checkSemantics(Scope *currentScope);	
     VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }
     Hashtable<VarIndexMap*>* getVarIndexes() { return varIndexes; }
+    bool isMemberFunction(const char *functionName) { return functionIndexes->Lookup(functionName) != NULL; }	
     int getFunctionIndex(const char *functionName) { return functionIndexes->Lookup(functionName)->index; }		
     void createObjectRepresentation(List<ClassDecl*> *classList);
     int getSize() { return objectSize; }				
