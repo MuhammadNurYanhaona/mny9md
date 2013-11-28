@@ -417,6 +417,12 @@ Location* FieldAccess::generateAddress(CodeGenerator *codegen) {
 				return codegen->GenBinaryOp("+", thisPtr, propIndex); 
 			}
 		}	
+	} else {
+		this->classMember = true;
+		Location *baseLocation = base->generateCode(codegen); 	
+		VarIndexMap *map = currentLocalStack->getVariableIndex(field->getName());
+		Location *propIndex = codegen->GenLoadConstant(map->index);
+		return codegen->GenBinaryOp("+", baseLocation, propIndex); 
 	}
 	return generateCode(codegen);
 }

@@ -30,10 +30,11 @@ Location* StackFrame::createLocalVar(const char *name) {
 
 Location* StackFrame::createTemp() {
 	char temp[10];
-	sprintf(temp, "_tmp%d", variableCount++);
+	sprintf(temp, "_tmp%d", variableCount);
 	int offset = CodeGenerator::OffsetToFirstLocal - variableCount * CodeGenerator::VarSize; 
 	Location *location = new Location(fpRelative, offset, temp);
 	items->Enter(temp, location, false);
+	variableCount++;
 	return location;
 }
 

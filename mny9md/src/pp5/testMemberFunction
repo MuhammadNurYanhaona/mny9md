@@ -1,0 +1,11 @@
+class Student {
+	void printSchool() {
+		Print("University of Virginia");
+	}
+}
+
+void main() {
+	Student student;
+	student = New(Student);
+	student.printSchool();	
+}

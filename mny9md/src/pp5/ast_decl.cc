@@ -373,9 +373,9 @@ void FnDecl::Emit(CodeGenerator *codegen) {
 	codegen->GenEndFunc();	 
 	codeBegin->SetFrameSize(currentLocalStack->getVarCount() * CodeGenerator::VarSize);
 	
-	// Debugging location setting
-	//printf("Function %s stack...............\n", this->getTacName());
-	//currentLocalStack->printVariables();
+//	// Debugging location setting
+//	printf("Function %s stack...............\n", this->getTacName());
+//	currentLocalStack->printVariables();
 	
 	currentLocalStack = NULL;
 }

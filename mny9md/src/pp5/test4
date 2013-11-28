@@ -3,12 +3,17 @@ void main() {
 	st = New(Student);
 	st.initiate();
 	st.printMe();
+	st.updateAge(5);
+	Print(5, " years later\n");
+	st.printMe();
 }
 
 class Student {
 	string name;
 	int age;
 	bool male;
+	int siblings;
+
 	void initiate() {
 		Print("Enter name: ");
 		name = ReadLine();
@@ -16,15 +21,21 @@ class Student {
 		age = ReadInteger();
 		Print("Is male? True = 1 False = 0: ");
 		male = ReadInteger() == 1;
+		siblings = 0;
 	}
 	void printMe() {
 		Print("Name: ", name, "\n");
 		Print("Age: ", age, "\n");
 		Print("Male: ", male, "\n");
-		printSomething(this);
+		Print("Siblings: ", siblings, "\n");
 	}
 
-	void printSomething(Student me) {
-		me.age = me.age + 1;
+	void updateAge(int increment) {
+		age = age + increment;
+		updateSiblings(this);
+	}
+
+	void updateSiblings(Student st) {
+		st.siblings = 5;
 	}
 }
