@@ -1,0 +1,30 @@
+void main() {
+	Student st;
+	st = New(Student);
+	st.initiate();
+	st.printMe();
+}
+
+class Student {
+	string name;
+	int age;
+	bool male;
+	void initiate() {
+		Print("Enter name: ");
+		name = ReadLine();
+		Print("Enter age: ");
+		age = ReadInteger();
+		Print("Is male? True = 1 False = 0: ");
+		male = ReadInteger() == 1;
+	}
+	void printMe() {
+		Print("Name: ", name, "\n");
+		Print("Age: ", age, "\n");
+		Print("Male: ", male, "\n");
+		printSomething(this);
+	}
+
+	void printSomething(Student me) {
+		me.age = me.age + 1;
+	}
+}

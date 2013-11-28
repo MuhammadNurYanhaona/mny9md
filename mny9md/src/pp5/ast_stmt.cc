@@ -99,6 +99,22 @@ void Program::Emit() {
      *      polymorphism in the node classes.
      */
 
+	// search for main function first
+	bool mainFunctionFound = false;
+	for (int i = 0; i < decls->NumElements(); i++) {
+		Decl *decl = decls->Nth(i);
+		FnDecl *fnDecl = dynamic_cast<FnDecl*> (decl);
+		if (fnDecl != NULL && (strcmp("main", fnDecl->getName()) == 0)) {
+			mainFunctionFound = true;
+			break;
+		}
+	}
+	if (!mainFunctionFound) {
+		ReportError::NoMainFound();
+		return;
+	}
+	
+
 	//SetDebugForKey("tac", true);
 	CodeGenerator *codegen = new CodeGenerator();
 

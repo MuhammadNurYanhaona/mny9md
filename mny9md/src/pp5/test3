@@ -6,9 +6,11 @@ void main() {
 	student = New(Student);
 	fruit = New(Fruit);
 	person = New(Person);
+	fruit.printDesc(); 	
 	Print(student.getName(), "\n");
 	Print(fruit.getName(), "\n");
 	student.printDetail();
+	Print("Why isn't it working?\n");
 	fruit.printDesc(); 	
 }
 

@@ -85,7 +85,8 @@ class StackFrame {
 	void setVarIndexMap(Hashtable<VarIndexMap*> *varIndexes) { this->varIndexes = varIndexes; }
 	VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }
 	void setCurrentClass(const char *className) { currentClass = className; }
-	const char* getCurrentClass() { return currentClass; }	 
+	const char* getCurrentClass() { return currentClass; }
+	void printVariables();	 
 };
 
 

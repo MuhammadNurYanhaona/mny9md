@@ -2,14 +2,18 @@ void main() {
 	
 	int x;
 	int x2;
+	int sizeX;
 	int[][] y;
-	y = NewArray(10, int[]);
+
+	Print("Enter array size: ");
+	sizeX = ReadInteger();
+	y = NewArray(sizeX, int[]);
 	
-	for (x = 0; x < 10; x++) {
+	for (x = 0; x < sizeX; x++) {
 		y[x] = NewArray(5, int);
 	}
 
-	for (x = 0; x < 10; x++) {
+	for (x = 0; x < sizeX; x++) {
 		for (x2 = 0; x2 < 5; x2++)
 			y[x][x2] = x * 10 + x2;
 	}
@@ -17,9 +21,9 @@ void main() {
 	println("Hello World", "From Charlottesville");
 	x = generateNumber();
 	Print("Number is ", x, "\n");
-	Print("Array size is ", y.length());
+	Print("Array size is ", y.length(), "\n");
 	
-	for (x = 0; x < 10; x++) {
+	for (x = 0; x < sizeX; x++) {
 		Print("Subarray size ", y[x].length(), "\n");
 		for (x2 = 0; x2 < 5; x2++) {
 			Print("\t", y[x][x2], "\n");
@@ -34,25 +38,6 @@ void println(string s1, string s2) {
 }
 
 int generateNumber() {
+	Print("Just enter a number for fun: ");
 	return ReadInteger();
-}
-
-class Student extends Person {
-	string school;
-	string major;
-	void printDetail() {
-		Print(name, "\n");
-		Print(major, "\n");
-	}
-}
-
-class Fruit {
-	string name;
-	int price;
-	bool tasty;
-}
-
-class Person {
-	string name;
-	int age;
 }

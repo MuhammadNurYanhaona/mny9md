@@ -252,9 +252,17 @@ Location* AssignExpr::generateCode(CodeGenerator *codegen) {
 	Location *t1;
 	Location *t2 = right->generateCode(codegen);
 	ArrayAccess *arrayAccess = dynamic_cast<ArrayAccess*>(left);
+	FieldAccess *fieldAccess = dynamic_cast<FieldAccess*>(left);
 	if (arrayAccess != NULL) {
 		t1 = arrayAccess->generateAddress(codegen);
 		codegen->GenStore(t1, t2);
+	} else if (fieldAccess != NULL) {
+		t1 = fieldAccess->generateAddress(codegen);
+		if (fieldAccess->isClassMember()) {
+			codegen->GenStore(t1, t2);
+		} else {
+			codegen->GenAssign(t1, t2);
+		}
 	} else { 
 		t1 = left->generateCode(codegen);
 		codegen->GenAssign(t1, t2);
@@ -294,12 +302,36 @@ void ArrayAccess::checkSemantics(Scope *currentScope) {
 }
 
 Location* ArrayAccess::generateAddress(CodeGenerator *codegen) {
+
+	// get address and size information
 	Location *beginning = base->generateCode(codegen);
 	Location *index = subscript->generateCode(codegen);
 	Location *size = codegen->GenLoad(beginning);
+
+	// check if index is out of bound
+	Location *zero = codegen->GenLoadConstant(0);
+	Location *testLowerLimit = codegen->GenBinaryOp("<", index, zero);
+	Location *one = codegen->GenLoadConstant(1);
+	Location *lastIndex = codegen->GenBinaryOp("-", size, one);
+	Location *testUpperLimit = codegen->GenBinaryOp("<", lastIndex, index);
+	Location *bothConditions = codegen->GenBinaryOp("||", testLowerLimit, testUpperLimit);
+	int indexCheckLabelNo = globalStack->getNextLabelNum();
+	char indexCheckLabel[30];
+	sprintf(indexCheckLabel, "arrayAcc_%d", indexCheckLabelNo);
+	codegen->GenIfZ(bothConditions, indexCheckLabel);
+
+	// if out-of-bound index then throw a runtime error
+	Location *errorMessage = codegen->GenLoadConstant(err_arr_out_of_bounds);
+	codegen->GenBuiltInCall(PrintString, errorMessage);
+	codegen->GenBuiltInCall(Halt);
+
+	// generate the actual memory address
+	codegen->GenLabel(indexCheckLabel);
 	Location *four = codegen->GenLoadConstant(4);
 	Location *wordIndex = codegen->GenBinaryOp("*", index, four);
 	Location *unshiftedAddr = codegen->GenBinaryOp("+", beginning, wordIndex);
+	
+	// shift by 4 byte to account for the length information
 	return codegen->GenBinaryOp("+", unshiftedAddr, four);
 }
 
@@ -371,6 +403,24 @@ void FieldAccess::checkSemantics(Scope *currentScope) {
 		}
 	}
 }
+
+Location* FieldAccess::generateAddress(CodeGenerator *codegen) {
+	this->classMember = false;
+	if (base == NULL) {
+		Location* fieldLocation = currentLocalStack->getLocation(field->getName());
+		if (fieldLocation == NULL) {
+			VarIndexMap *map = currentLocalStack->getVariableIndex(field->getName());
+			if (map != NULL) {
+				this->classMember = true;
+				Location *thisPtr = currentLocalStack->getLocation("this");
+				Location *propIndex = codegen->GenLoadConstant(map->index);
+				return codegen->GenBinaryOp("+", thisPtr, propIndex); 
+			}
+		}	
+	}
+	return generateCode(codegen);
+}
+
 
 Location* FieldAccess::generateCode(CodeGenerator *codegen) {
 	if (base == NULL) {
@@ -529,7 +579,8 @@ Location* Call::generateCode(CodeGenerator *codegen) {
 		if (classDecl->isMemberFunction(field->getName())) {
 			Location *vTable = codegen->GenLoad(CodeGenerator::ThisPtr);
 			int indexOfFunction = classDecl->getFunctionIndex(field->getName());
-			dynamicFunctionLoc = codegen->GenLoad(vTable, indexOfFunction * 4); 	
+			dynamicFunctionLoc = codegen->GenLoad(vTable, indexOfFunction * 4);
+			baseLocation = CodeGenerator::ThisPtr; 	
 		} else {
 			sprintf(functionLabel, "_%s", field->getName());
 			globalFunction = true;
@@ -538,12 +589,15 @@ Location* Call::generateCode(CodeGenerator *codegen) {
 		sprintf(functionLabel, "_%s", field->getName());
 		globalFunction = true;
 	}
-		
+	
+	int pushParamCount = 0;	
 	for (int i = paramLocations->NumElements() - 1; i >= 0; i--) {
 		codegen->GenPushParam(paramLocations->Nth(i));
+		pushParamCount++;
 	} 
 	if (baseLocation != NULL) {
 		codegen->GenPushParam(baseLocation);
+		pushParamCount++;
 	}
 
 	if (globalFunction) {
@@ -551,7 +605,7 @@ Location* Call::generateCode(CodeGenerator *codegen) {
 	} else {
 		returnLoc = codegen->GenACall(dynamicFunctionLoc, returnRequired);
 	}
-	codegen->GenPopParams(paramLocations->NumElements() * 4);
+	codegen->GenPopParams(pushParamCount * 4);
 	return returnLoc;
 }
 
@@ -610,7 +664,25 @@ void NewArrayExpr::checkSemantics(Scope *currentScope) {
 }
 
 Location* NewArrayExpr::generateCode(CodeGenerator *codegen) {
+	
+	// compute size
 	Location *count = size->generateCode(codegen);
+
+	// check if size is positive or not
+	Location *one = codegen->GenLoadConstant(1);
+	int nonHaltLabelNo = globalStack->getNextLabelNum();
+	char nonHaltLabel[30];
+	sprintf(nonHaltLabel, "allocate_%d", nonHaltLabelNo);
+	Location *sizeCheck = codegen->GenBinaryOp("<", count, one);
+	codegen->GenIfZ(sizeCheck, nonHaltLabel);
+
+	// if non-positive then throw a runtime error
+	Location *errorMessage = codegen->GenLoadConstant(err_arr_bad_size);
+	codegen->GenBuiltInCall(PrintString, errorMessage);
+	codegen->GenBuiltInCall(Halt);
+	
+	// allocate array
+	codegen->GenLabel(nonHaltLabel);
 	Location *elementSize = codegen->GenLoadConstant(4);
 	Location *totalSize = codegen->GenBinaryOp("*", count, elementSize);
 	Location *sizeWithLengthInfo = codegen->GenBinaryOp("+", totalSize, elementSize); 

@@ -1,0 +1,25 @@
+void main() {
+	int[] array;
+	int size;
+	int index;
+	Print("Enter array size: ");
+	size = ReadInteger();
+	array = NewArray(size, int);
+	populateArray(array, size);
+	Print("allocation successful\n");
+	while (true) {
+		Print("Enter the element's index you want to access: ");
+		index = ReadInteger();
+		Print("Value is: ", array[index], "\n");
+	}
+}
+
+void populateArray(int[] arr, int siz) {
+	int index;
+	for (index = 0; index < siz; index = index + 1) {
+		arr[index] = siz * 100 + index;
+	}
+	for (index = 0; index < siz; index = index + 1) {
+		Print(arr[index], "\n");
+	}
+}

@@ -219,11 +219,14 @@ class FieldAccess : public LValue
   protected:
     Expr *base;	// will be NULL if no explicit base
     Identifier *field;
+    bool classMember;  	
     
   public:
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
     void checkSemantics(Scope *currentScope);
     Location* generateCode(CodeGenerator *codegen); 	
+    Location* generateAddress(CodeGenerator *codegen);
+    bool isClassMember() { return classMember; }	 	
 };
 
 /* Like field access, call is used both for qualified base.field()
