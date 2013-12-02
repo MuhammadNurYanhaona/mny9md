@@ -1,0 +1,27 @@
+int a;
+
+class Student {
+	int a;
+	void initiate() { a = 10; }
+	void printA() { Print("Class: ", a, "\n");}
+}
+
+void main() {
+	Student s;
+	s = New(Student);
+	s.initiate();
+	a = 100;
+	s.printA();
+	globalPrint();
+	localPrint(); 
+}
+
+void globalPrint() {
+	Print("Global: ", a, "\n");
+}
+
+void localPrint() {
+	int a;
+	a = 50;
+	Print("Local: ", a, "\n");
+}
