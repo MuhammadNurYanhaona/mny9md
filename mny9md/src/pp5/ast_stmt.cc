@@ -182,16 +182,25 @@ void StmtBlock::checkSemantics(Scope *currentScope) {
 
 void StmtBlock::Emit(CodeGenerator *codegen) {
 
+	List<Location*> *localVariables = new List<Location*>;
+
 	// allocate the variables in the current stack frame
 	for (int i = 0; i < decls->NumElements(); i++) {
 		Decl *decl = decls->Nth(i);
-		currentLocalStack->createLocalVar(decl->getName());
+		Location *loc = currentLocalStack->createLocalVar(decl->getName());
+		localVariables->Append(loc);
 	}
 
 	// generate code for statements
 	for (int i = 0; i < stmts->NumElements(); i++) {
 		Stmt *stmt = stmts->Nth(i);
 		stmt->Emit(codegen);
+	}
+
+	// remove the local variables from the activation stack to avoid name conflicts
+	for (int i = 0; i < localVariables->NumElements(); i++) {
+		Location *loc = localVariables->Nth(i);
+		currentLocalStack->removeLocalVariable(loc->GetName(), loc);
 	}
 }
 

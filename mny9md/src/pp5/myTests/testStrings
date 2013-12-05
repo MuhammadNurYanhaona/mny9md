@@ -1,0 +1,17 @@
+void main() {
+
+	string a;
+	string b;
+	
+	while (true) {
+		Print("Enter Quit to exit\n");
+		Print("Enter first string\n");
+		a = ReadLine();
+		if (a == "Quit") break;
+		Print("Enter second string\n");
+		b = ReadLine();
+		if (b == "Quit") break;
+		if (a != b) Print("Strings aren't the same\n\n");
+		else Print("Strings are the same\n\n");
+	}
+}

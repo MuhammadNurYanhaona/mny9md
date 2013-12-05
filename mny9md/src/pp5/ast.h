@@ -74,6 +74,7 @@ class StackFrame {
 	}
 
 	Location* getLocation(const char *var) { return items->Lookup(var); }
+	void removeLocalVariable(const char *var, Location *location) { items->Remove(var, location); }	 
 	int getVarCount() { return variableCount; }
 	Location* createLocalVar(const char *name);
 	Location* createParameter(const char *name);
@@ -86,7 +87,7 @@ class StackFrame {
 	VarIndexMap* getVariableIndex(const char *var) { return varIndexes->Lookup(var); }
 	void setCurrentClass(const char *className) { currentClass = className; }
 	const char* getCurrentClass() { return currentClass; }
-	void printVariables();	 
+	void printVariables();
 };
 
 

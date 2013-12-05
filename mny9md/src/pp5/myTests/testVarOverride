@@ -1,0 +1,38 @@
+void main() {
+
+	Student out;
+	int a;
+	
+	out = New (Student);
+	out.initialize("Yan", "University of Virginia");
+	a = 100;	
+	Print("Outside: ", a, "\n");
+	out.print();
+	
+	if (true) {
+		Student out;
+		int a;
+
+		out = New (Student);
+		out.initialize("Tozammel", "Virginia Tech");
+		a = 50;
+		Print("Inside: ", a, "\n");
+		out.print();
+	}
+	Print("Outside: ", a, "\n");
+	out.print();
+}
+
+class Student {
+	string name;
+	string school;
+
+	void initialize(string name, string school) {
+		this.name = name;
+		this.school = school;
+	}
+
+	void print() {
+		Print(name, " studying at ", school, "\n");
+	}
+}
