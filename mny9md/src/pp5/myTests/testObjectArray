@@ -1,0 +1,61 @@
+class Student {
+
+	string name;
+
+	void initiate(string name) {
+		this.name = name;
+	}
+	string getName() { return name; }
+}
+
+class Course {
+	string name;
+	int studentCount;
+
+	void initiate(string name, int count) {
+		this.name = name;
+		studentCount = count;
+	}
+
+	void describe() {
+		Print("Course ", name, " has ", studentCount, " students\n");
+	}
+}
+
+void main () {
+
+	Course[] courses;
+	Student[][] students;
+	int courseCount;
+	int studentCount;
+	int i;
+	int j;
+
+	Print("How many courses?\n");
+	courseCount = ReadInteger();
+	Print("How many students per course?\n");
+	studentCount = ReadInteger();
+
+	courses = NewArray(courseCount, Course);
+	students = NewArray(courseCount, Student[]);
+
+	for (i = 0; i < courseCount; i++) {
+		Print("Enter the name of course #", i + 1, "\n");
+		courses[i] = New(Course);
+		courses[i].initiate(ReadLine(), studentCount);
+		students[i] = NewArray(studentCount, Student);
+		for (j = 0; j < studentCount; j++) {
+			Print("Enter the name of student #", j + 1, "\n");
+			students[i][j] = New(Student);
+			students[i][j].initiate(ReadLine());
+		}
+	}
+
+	Print("\n\nYour course database is as follows..............\n");
+	for(i = 0; i < courseCount; i++) {
+		courses[i].describe();
+		for (j = 0; j < studentCount; j++) {
+			Print("\t", students[i][j].getName(), "\n");
+		}
+	}
+}
